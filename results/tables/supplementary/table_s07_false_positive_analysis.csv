@@ -1,0 +1,51 @@
+Drug A,Drug B,True Label,Predicted Probability
+Technetium Tc-99m sestamibi,Patent Blue,0,0.999851
+Nitrazepam,Bendazac,0,0.9998468
+Zalcitabine,Aurothioglucose,0,0.9998442
+Methylnaltrexone,Bendazac,0,0.9998306
+Iobenguane,Bendazac,0,0.99982846
+Tiotropium,Fluorodopa (18F),0,0.9998087
+Cefprozil,Fluorodopa (18F),0,0.9998043
+Clofedanol,Bendazac,0,0.9998042
+Quetiapine,Clofedanol,0,0.9998022
+Viloxazine,Bendazac,0,0.99979776
+Mexiletine,Hydracarbazine,0,0.9997936
+Sofosbuvir,Fluorodopa (18F),0,0.99979204
+Meprobamate,1-(2-Phenylethyl)-4-phenyl-4-acetoxypiperidine,0,0.99978656
+Iobenguane,Cefiderocol,0,0.9997855
+Moclobemide,Clofedanol,0,0.9997738
+Ceforanide,Technetium Tc-99m sestamibi,0,0.9997582
+Lisdexamfetamine,Clotiazepam,0,0.99975234
+Acamprosate,Chlormezanone,0,0.9997435
+Idalopirdine,Spiradoline,0,0.99974185
+Gliclazide,Bendazac,0,0.99973136
+Nicergoline,Flunitrazepam,0,0.99972886
+Secobarbital,Clofedanol,0,0.9997279
+Brivaracetam,Bendazac,0,0.99972504
+Benzthiazide,Technetium Tc-99m sestamibi,0,0.99972147
+Trimethadione,Clofedanol,0,0.99971586
+Ceforanide,Fluorodopa (18F),0,0.99971324
+Cefprozil,Cefiderocol,0,0.9997104
+Piperazine,Chlormezanone,0,0.9997093
+Cefprozil,Allantoin,0,0.999706
+Trifluoperazine,Spiradoline,0,0.9996972
+Tolcapone,Bendazac,0,0.99968874
+Zalcitabine,Fluorodopa (18F),0,0.99968326
+Cefprozil,Fospropofol,0,0.99968135
+Febuxostat,Aurothioglucose,0,0.99968135
+Meprobamate,Dexchlorpheniramine,0,0.99967134
+Mexiletine,Barbexaclone,0,0.9996691
+Moclobemide,Spiradoline,0,0.99966466
+Almotriptan,Bendazac,0,0.9996643
+Zalcitabine,Cefcapene,0,0.999663
+Flupentixol,Spiradoline,0,0.999663
+Sodium sulfate,Bendazac,0,0.9996551
+Sugammadex,Cefcapene,0,0.9996513
+Bufotenine,Bendazac,0,0.9996481
+Mexiletine,Caroxazone,0,0.9996481
+Ramosetron,Setiptiline,0,0.99964786
+Ceforanide,Tianeptine,0,0.9996433
+Suprofen,Iohexol,0,0.99964297
+Cefprozil,Edetate calcium disodium anhydrous,0,0.99962866
+Suprofen,Cefprozil,0,0.9996284
+Propiomazine,1-(2-Phenylethyl)-4-phenyl-4-acetoxypiperidine,0,0.9996111

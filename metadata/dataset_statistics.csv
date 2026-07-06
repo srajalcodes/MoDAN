@@ -1,0 +1,8 @@
+Metric,Value
+Unique Drugs,3904
+Positive Interactions,1238380
+Negative Interactions,1238380
+Total Drug Pairs,2476760
+Train Pairs,1578870
+S1 Pairs,797196
+S2 Pairs,100694

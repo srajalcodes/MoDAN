@@ -1,0 +1,3 @@
+Dataset,Total S2 Drugs,Overlapping Drugs (Leaked),Original S2 Edges,Strict Zero-Shot Edges (100% Blind)
+BIOSNAP,260,208,2703,101
+ZhangDDI,260,203,15959,696

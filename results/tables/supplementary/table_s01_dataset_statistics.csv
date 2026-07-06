@@ -1,0 +1,4 @@
+Dataset,Unique Drugs,Total Pairs,Positives,Negatives,Cold Train (Old-Old),S1 (Old-New),S2 (New-New)
+Custom DrugBank (Ours),3904,2476760,1238380,1238380,1578870,797196,100694
+ZhangDDI Benchmark,1299,392996,196498,196498,250442,126595,15959
+BIOSNAP Benchmark,1296,82294,41147,41147,55279,24312,2703

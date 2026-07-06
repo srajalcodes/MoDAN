@@ -1,0 +1,4 @@
+Gate,Mean Activation,Standard Deviation
+Chemistry (gc),0.0858,0.0098
+Protein (ge),0.0417,0.0095
+Biological Pathway (gb),0.0841,0.0092

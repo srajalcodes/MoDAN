@@ -1,0 +1,2 @@
+Comparison,Observed ROC-AUC Difference,p-value
+MoDAN vs Vanilla MLP (Concatenation),0.028,0.001

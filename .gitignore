@@ -1,0 +1,29 @@
+# Python environment
+__pycache__/
+*.pyc
+.env
+.vscode/
+.ipynb_checkpoints/
+
+# Model Weights (Going to Zenodo)
+*.pt
+*.pth
+
+# Massive Data and Embeddings (Going to Zenodo)
+*.pkl
+*.dat
+*.npz
+*.xml
+*.zip
+
+# Ignore dataset CSVs (Due to DrugBank License)
+data/*.csv
+benchmark_splits/
+
+# BUT DO NOT ignore our result tables!
+!results/tables/
+!results/tables/**/*.csv
+
+# OS generated files
+.DS_Store
+Thumbs.db

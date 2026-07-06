@@ -1,0 +1,51 @@
+Drug A,Drug B,True Label,Predicted Probability
+Troleandomycin,Glofitamab,1,0.00034670334
+Aminolevulinic acid,Butanilicaine,1,0.00034907166
+Nilotinib,Risankizumab,1,0.00035263118
+Dacarbazine,Risankizumab,1,0.00035712705
+Zeranol,Lanadelumab,1,0.00035811574
+Zeranol,Risankizumab,1,0.00039656504
+Dacarbazine,Sutimlimab,1,0.00040180344
+Zeranol,Bebtelovimab,1,0.00040890093
+Difloxacin,Diphenadione,1,0.00041718708
+Aminolevulinic acid,Metabutethamine,1,0.00041882804
+Clomethiazole,Glofitamab,1,0.00042257935
+Zeranol,Sutimlimab,1,0.00042792092
+Trilostane,Risankizumab,1,0.00043499356
+Nilotinib,Sutimlimab,1,0.00043614622
+Ozanimod,Risankizumab,1,0.0004459437
+Penimepicycline,Diphenadione,1,0.00044701618
+4-hydroxycoumarin,Roxarsone,1,0.00045011172
+Zeranol,Glofitamab,1,0.0004534845
+Topotecan,Risankizumab,1,0.0004534917
+Cinnarizine,Glofitamab,1,0.00046073194
+Erythromycin,Glofitamab,1,0.00046197034
+Bamifylline,Glofitamab,1,0.00046400333
+Clomethiazole,Bimekizumab,1,0.00046659334
+Idarubicin,Risankizumab,1,0.00047042064
+Disulfiram,Bimekizumab,1,0.00047065344
+Cinnarizine,Bimekizumab,1,0.0004773535
+Telavancin,Certolizumab pegol,1,0.00048359155
+Zeranol,Bimekizumab,1,0.00048586132
+Ceforanide,Certolizumab pegol,1,0.00048945827
+Disulfiram,Glofitamab,1,0.0004994084
+Erythromycin,Bimekizumab,1,0.0005017615
+Benzyl alcohol,Roxarsone,1,0.00050579273
+Ceforanide,Ifosfamide,1,0.00051253
+Telavancin,Metabutethamine,1,0.00051659
+Piperazine,Bimekizumab,1,0.00052186975
+Biapenem,Diphenadione,1,0.0005230062
+Ozanimod,Sutimlimab,1,0.0005371542
+Coumarin,Roxarsone,1,0.00054467825
+Ceforanide,Plerixafor,1,0.00054600864
+Telavancin,Plerixafor,1,0.00054656295
+Cefuroxime,Certolizumab pegol,1,0.0005517861
+Aminolevulinic acid,Benzyl alcohol,1,0.00055281026
+Niclosamide,Glofitamab,1,0.00055295706
+Dacarbazine,Glofitamab,1,0.0005546237
+Delavirdine,Glofitamab,1,0.00055569573
+Idarubicin,Sutimlimab,1,0.00055650563
+Asenapine,Glofitamab,1,0.00055824366
+Telavancin,Diphenadione,1,0.0005605039
+Midecamycin,Glofitamab,1,0.0005618417
+Moclobemide,Glofitamab,1,0.0005683112
