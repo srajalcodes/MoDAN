@@ -75,7 +75,7 @@ pip install -r requirements.txt
 
 ## Dataset Acquisition
 
-This study utilizes DrugBank v5.1.21.
+This study utilizes DrugBank v5.1.13.
 
 Due to DrugBank licensing restrictions, the original dataset cannot be redistributed through this repository.
 
