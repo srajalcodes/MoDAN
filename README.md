@@ -77,6 +77,23 @@ conda activate ddi_final
 ```bash
 pip install -r requirements.txt
 ```
+## Quick Start
+
+```bash
+git clone https://github.com/srajalcodes/MoDAN.git
+
+cd MoDAN
+
+conda env create -f environment.yml
+
+conda activate ddi_final
+```
+
+Download the reproducibility package from Zenodo:
+
+https://doi.org/10.5281/zenodo.21221081
+
+Extract the archive into the project directory before running the training or evaluation scripts.
 
 ---
 
