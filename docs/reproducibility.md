@@ -2,22 +2,67 @@
 
 ## Overview
 
-This repository accompanies the MoDAN framework for topology-free multimodal drug-drug interaction prediction.
+This repository accompanies the manuscript:
 
-The repository contains all code required to reconstruct the dataset, train the model, evaluate performance, reproduce figures, and regenerate the tables reported in the manuscript.
+**"MoDAN: An Interpretable Modality-Disentangled Attention Network for Zero-Shot Drug–Drug Interaction Prediction"**
+
+The repository provides the complete source code required to reconstruct the dataset, train the proposed model, evaluate its performance, reproduce the reported figures and tables, and validate the experimental results presented in the manuscript.
+
+To facilitate reproducibility while complying with DrugBank licensing restrictions, the reproducibility resources are distributed across **GitHub** and **Zenodo**.
 
 ---
 
-## Environment Setup
+# Repository Resources
 
-### Option 1: Conda
+## GitHub Repository
+
+The complete source code is available at:
+
+**https://github.com/srajalcodes/MoDAN**
+
+The GitHub repository contains:
+
+- Dataset reconstruction pipeline
+- Training scripts
+- Baseline implementations
+- Evaluation scripts
+- Statistical analysis scripts
+- Visualization utilities
+- Configuration files
+- Documentation
+
+---
+
+## Zenodo Archive
+
+The complete reproducibility package is available at:
+
+**https://doi.org/10.5281/zenodo.21221081**
+
+The Zenodo archive contains:
+
+- Pre-trained MoDAN model weights (`best_biomodal_model.pt`)
+- ChemBERTa embeddings
+- ESM-2 embeddings
+- BioBERT embeddings
+- DrugBank evaluation splits
+- BIOSNAP benchmark splits
+- ZhangDDI benchmark splits
+
+The original DrugBank XML database is **not included** because it is distributed under the DrugBank Academic License.
+
+---
+
+# Environment Setup
+
+## Option 1: Conda (Recommended)
 
 ```bash
 conda env create -f environment.yml
 conda activate ddi_final
 ```
 
-### Option 2: Pip
+## Option 2: Pip
 
 ```bash
 pip install -r requirements.txt
@@ -25,164 +70,186 @@ pip install -r requirements.txt
 
 ---
 
-## Data Acquisition
+# Dataset Acquisition
 
-The study uses DrugBank v5.1.21.
+This study utilizes **DrugBank Version 5.1 (schema version 5.1.13; exported on 2025-01-02).**
 
-DrugBank data cannot be redistributed through this repository due to licensing restrictions.
+The original DrugBank XML database cannot be redistributed through this repository due to DrugBank licensing restrictions.
 
-Researchers should obtain DrugBank directly through the official academic licensing program.
+Researchers wishing to reproduce the complete dataset should obtain DrugBank directly through the official DrugBank Academic Licensing Program.
 
-Additional biological annotations are retrieved from:
+Additional biological annotations are obtained from:
 
-* UniProt
-* PubChem
+- UniProt
+- PubChem
 
 ---
 
-## Dataset Reconstruction
+# Dataset Reconstruction
 
-After obtaining DrugBank:
+After obtaining DrugBank, reconstruct the canonical dataset using:
 
 ```bash
-python scripts/build_dataset.py
+python src/preprocessing/build_canonical_dataset.py
 ```
 
-Expected outputs:
+This pipeline generates:
 
-* Canonical DDI dataset
-* Train partition
-* S1 partition
-* S2 partition
+- Canonical DrugBank DDI dataset
+- Training partition
+- S1 (Old–New) evaluation split
+- S2 (New–New) evaluation split
 
 Dataset statistics:
 
-* Unique drugs: 3904
-* Positive interactions: 1,238,380
-* Negative interactions: 1,238,380
+| Statistic | Value |
+|-----------|------:|
+| Unique drugs | 3,904 |
+| Positive interactions | 1,238,380 |
+| Negative interactions | 1,238,380 |
+| Total interaction pairs | 2,476,760 |
 
 ---
 
-## Training MoDAN
+# Training MoDAN
 
-Train the production model:
+Train the proposed MoDAN model using:
 
 ```bash
-python scripts/train_production_model.py
+python src/training/train_modan.py
 ```
 
-Outputs:
+The training pipeline automatically selects the best-performing checkpoint according to the validation ROC-AUC on the S2 inductive evaluation protocol.
+
+Expected output:
 
 ```text
 best_biomodal_model.pt
 ```
 
-The best model is selected according to S2 ROC-AUC.
-
 ---
 
-## Baseline Models
+# Baseline Models
 
-Dual-modal baselines:
+## Dual-Modal Baselines
 
 ```bash
-python scripts/train_lr_onthefly.py
+python src/training/train_logistic_regression.py
 
-python scripts/train_xgboost_onthefly.py
+python src/training/train_xgboost.py
 ```
 
-Tri-modal baselines:
+## Tri-Modal Baseline
 
 ```bash
-python scripts/train_model1_onthefly.py
+python src/training/train_xgboost_multimodal.py
 ```
 
-MLP baseline:
+## Deep Learning Baseline
 
 ```bash
-python scripts/train_mlp_baseline.py
-```
-
----
-
-## Ablation Studies
-
-Modality ablation:
-
-```bash
-python scripts/train_ablation.py
-```
-
-Architectural ablation:
-
-```bash
-python scripts/ablate_the_gate.py
+python src/training/train_mlp_baseline.py
 ```
 
 ---
 
-## Transfer Learning
+# Ablation Studies
 
-Benchmark evaluation:
+## Modality Ablation
 
 ```bash
-python scripts/train_biomodal_onthefly.py
+python src/training/run_ablation_study.py
 ```
 
-Strict zero-shot transfer:
+## Architectural Ablation
 
 ```bash
-python scripts/zero_shot_transfer.py
-```
-
----
-
-## Statistical Analysis
-
-Bootstrap confidence intervals:
-
-```bash
-python scripts/calculate_rigorous_metrics.py
-```
-
-Permutation testing:
-
-```bash
-python scripts/calculate_p_values.py
-```
-
-Calibration analysis:
-
-```bash
-python scripts/generate_calibration.py
+python src/analysis/analyze_gate_ablation.py
 ```
 
 ---
 
-## Figure Generation
+# External Benchmark Evaluation
 
-UMAP visualization:
+## Cross-Dataset Transfer Learning
 
 ```bash
-python scripts/generate_advanced_umaps.py
+python src/training/train_modan_bimodal.py
 ```
 
-Biological quality analysis:
+## Strict Zero-Shot Transfer
 
 ```bash
-python scripts/check_biological_quality.py
-```
-
-Interpretability analysis:
-
-```bash
-python scripts/extract_interpretability.py
+python src/evaluation/evaluate_zero_shot_transfer.py
 ```
 
 ---
 
-## Expected Outputs
+# Statistical Analysis
 
-The reproduced results should closely match the values reported in the manuscript, with minor numerical differences possible due to platform-specific implementation details and software versions.
+## Bootstrap Confidence Intervals
 
-For exact reproduction, use the supplied environment.yml file.
+```bash
+python src/evaluation/compute_evaluation_metrics.py
+```
+
+## Statistical Significance Testing
+
+```bash
+python src/evaluation/statistical_significance_tests.py
+```
+
+## Calibration Analysis
+
+```bash
+python src/visualization/generate_calibration_plots.py
+```
+
+---
+
+# Figure Generation
+
+## UMAP Visualization
+
+```bash
+python src/visualization/generate_umap_visualization.py
+```
+
+## Biological Annotation Analysis
+
+```bash
+python src/analysis/analyze_biological_annotations.py
+```
+
+## Model Interpretability Analysis
+
+```bash
+python src/analysis/analyze_model_interpretability.py
+```
+
+---
+
+# Expected Outputs
+
+Following the procedures described above should reproduce the experimental results reported in the accompanying manuscript.
+
+Minor numerical differences may occur because of hardware characteristics, software versions, floating-point arithmetic, and random initialization.
+
+For maximum reproducibility, we recommend:
+
+- Using the supplied `environment.yml`
+- Using the published Zenodo reproducibility package
+- Using the same DrugBank release described above
+- Preserving the provided train/test partitions
+
+---
+
+# Reproducibility Statement
+
+All experiments reported in the manuscript can be reproduced using:
+
+- The GitHub source code repository
+- The Zenodo reproducibility archive
+- A licensed copy of DrugBank Version 5.1 (schema version 5.1.13)
+
+The repository has been organized to separate source code (GitHub) from large research artifacts (Zenodo), following common practices for computational biology and machine learning research while respecting DrugBank licensing requirements.
