@@ -1,29 +1,101 @@
-# Python environment
+##############################################
+# Python
+##############################################
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+##############################################
+# Virtual Environments
+##############################################
 .env
+.venv/
+venv/
+ENV/
+env/
+
+##############################################
+# IDEs
+##############################################
 .vscode/
+.idea/
 .ipynb_checkpoints/
 
-# Model Weights (Going to Zenodo)
+##############################################
+# Operating System
+##############################################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+##############################################
+# Model Weights (Stored on Zenodo)
+##############################################
 *.pt
 *.pth
+*.ckpt
 
-# Massive Data and Embeddings (Going to Zenodo)
+##############################################
+# Embeddings / Large Binary Files (Stored on Zenodo)
+##############################################
 *.pkl
 *.dat
 *.npz
-*.xml
-*.zip
+*.npy
 
-# Ignore dataset CSVs (Due to DrugBank License)
+##############################################
+# DrugBank Raw Data (Never upload)
+##############################################
+*.xml
+*.xml.zip
+*.sdf
+*.sdf.zip
+
+##############################################
+# Large Archives
+##############################################
+*.zip
+*.tar
+*.gz
+*.7z
+
+##############################################
+# Dataset Files
+##############################################
 data/*.csv
 benchmark_splits/
 
-# BUT DO NOT ignore our result tables!
+##############################################
+# Keep Result Tables
+##############################################
+!results/
 !results/tables/
 !results/tables/**/*.csv
 
-# OS generated files
-.DS_Store
-Thumbs.db
+##############################################
+# Local Research Artifacts
+##############################################
+repository_audit/
+repository_auditor.py
+reorganize_repository.py
+codebase_scan_report.txt
+main_results_audit.txt
+repository_tree.txt
+
+##############################################
+# Zenodo Package (Local Copy)
+##############################################
+MoDAN_Zenodo_Archive/
+MoDAN_Zenodo_Archive.zip
+
+##############################################
+# Logs
+##############################################
+*.log
+
+##############################################
+# Temporary Files
+##############################################
+*.tmp
+*.bak
+*.swp
