@@ -35,19 +35,26 @@ MoDAN substantially outperforms classical machine learning baselines while maint
 ## Repository Structure
 
 ```text
-MoDAN-DDI/
+MoDAN/
 │
-├── scripts/
+├── src/
+│   ├── preprocessing/
+│   ├── training/
+│   ├── evaluation/
+│   ├── analysis/
+│   ├── visualization/
+│   ├── embeddings/
+│   ├── model/
+│   └── utils/
+│
 ├── configs/
-├── metadata/
+├── data/
 ├── docs/
+├── metadata/
 ├── results/
 │   ├── figures/
 │   ├── tables/
 │   └── logs/
-├── models/
-├── data/
-├── tests/
 │
 ├── requirements.txt
 ├── environment.yml
@@ -88,12 +95,45 @@ Additional biological annotations are retrieved from:
 
 ---
 
+## Data and Model Availability
+
+The complete reproducibility package is divided between GitHub and Zenodo.
+
+### GitHub Repository
+
+This repository contains:
+
+- Source code
+- Training and evaluation scripts
+- Configuration files
+- Documentation
+- Statistical analysis scripts
+- Figure generation utilities
+
+### Zenodo Archive
+
+The complete reproducibility package is available at:
+
+**DOI:** https://doi.org/10.5281/zenodo.21221081
+
+The Zenodo archive contains:
+
+- Pre-trained MoDAN model weights (`best_biomodal_model.pt`)
+- ChemBERTa embeddings
+- ESM-2 embeddings
+- BioBERT embeddings
+- DrugBank evaluation splits
+- BIOSNAP evaluation splits
+- ZhangDDI evaluation splits
+
+Due to DrugBank licensing restrictions, the original DrugBank XML database is **not redistributed**. Researchers must obtain an academic license directly from DrugBank before running the dataset reconstruction pipeline.
+
 ## Dataset Reconstruction
 
 After obtaining DrugBank:
 
 ```bash
-python scripts/build_dataset.py
+python src/preprocessing/build_canonical_dataset.py
 ```
 
 This will generate:
@@ -117,7 +157,7 @@ Dataset statistics:
 Train the production model:
 
 ```bash
-python scripts/train_production_model.py
+python src/training/train_modan.py
 ```
 
 The best model checkpoint is selected according to S2 ROC-AUC.
@@ -129,20 +169,20 @@ The best model checkpoint is selected according to S2 ROC-AUC.
 Dual-modal baselines:
 
 ```bash
-python scripts/train_lr_onthefly.py
-python scripts/train_xgboost_onthefly.py
+python src/training/train_logistic_regression.py
+python src/training/train_xgboost.py
 ```
 
 Tri-modal baselines:
 
 ```bash
-python scripts/train_model1_onthefly.py
+python src/training/train_xgboost_multimodal.py
 ```
 
 Fair deep-learning baseline:
 
 ```bash
-python scripts/train_mlp_baseline.py
+python src/training/train_mlp_baseline.py
 ```
 
 ---
@@ -152,13 +192,13 @@ python scripts/train_mlp_baseline.py
 Modality ablation:
 
 ```bash
-python scripts/train_ablation.py
+python src/training/run_ablation_study.py
 ```
 
 Architectural ablation:
 
 ```bash
-python scripts/ablate_the_gate.py
+python src/analysis/analyze_gate_ablation.py
 ```
 
 ---
@@ -168,13 +208,13 @@ python scripts/ablate_the_gate.py
 Benchmark transfer experiments:
 
 ```bash
-python scripts/train_biomodal_onthefly.py
+python src/training/train_modan_bimodal.py
 ```
 
 Strict zero-shot evaluation:
 
 ```bash
-python scripts/zero_shot_transfer.py
+python src/evaluation/evaluate_zero_shot_transfer.py
 ```
 
 ---
@@ -184,19 +224,19 @@ python scripts/zero_shot_transfer.py
 Bootstrap confidence intervals:
 
 ```bash
-python scripts/calculate_rigorous_metrics.py
+python src/evaluation/compute_evaluation_metrics.py
 ```
 
 Permutation testing:
 
 ```bash
-python scripts/calculate_p_values.py
+python src/evaluation/statistical_significance_tests.py
 ```
 
 Calibration analysis:
 
 ```bash
-python scripts/generate_calibration.py
+python src/visualization/generate_calibration_plots.py
 ```
 
 ---
@@ -221,19 +261,37 @@ The repository includes:
 
 ## Model Availability
 
-The trained MoDAN checkpoint, supplementary results, and reproducibility materials are available through Zenodo.
+The complete reproducibility package is available through Zenodo:
 
-A Hugging Face model repository is also provided for inference and future benchmarking studies.
+https://doi.org/10.5281/zenodo.21221081
+
+The archive contains:
+
+- Pre-trained model weights
+- Multimodal embeddings
+- Evaluation datasets
+- Benchmark splits
+
+The source code is maintained on GitHub.
 
 ---
 
 ## Citation
 
-If you use this repository in your research, please cite:
+If you use this repository, please cite:
 
-```bibtex
-Citation will be added upon publication.
-```
+1. The accompanying manuscript (once published).
+
+2. The Zenodo reproducibility archive:
+
+Sharma D., Tiwari S., Singh J., Singh T.
+
+*Dataset and Pre-Trained Weights for MoDAN.*
+
+Zenodo.
+
+https://doi.org/10.5281/zenodo.21221081
+
 
 ---
 
