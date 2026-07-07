@@ -17,6 +17,14 @@ The framework integrates:
 
 through a modality-disentangled gated cross-attention architecture that dynamically filters noisy modalities while preserving complementary biological information.
 
+## Highlights
+
+- Topology-free multimodal DDI prediction
+- Strict inductive and zero-shot evaluation
+- Fully reproducible research repository
+- Automated dataset installation via Zenodo
+- Cross-platform support (Windows, Linux, macOS)
+
 ---
 
 ## Key Results
@@ -36,6 +44,7 @@ MoDAN substantially outperforms classical machine learning baselines while maint
 
 ```text
 MoDAN/
+<<<<<<< Updated upstream
 │
 ├── src/
 │   ├── preprocessing/
@@ -55,6 +64,40 @@ MoDAN/
 │   ├── figures/
 │   ├── tables/
 │   └── logs/
+=======
+│
+├── configs/
+│
+├── data/
+│   ├── benchmark_splits/
+│   ├── biological/
+│   ├── embeddings/
+│   ├── metadata/
+│   └── processed/
+│
+├── docs/
+│
+├── models/
+│
+├── notebooks/
+│
+├── results/
+│   ├── figures/
+│   ├── logs/
+│   └── tables/
+│
+├── src/
+│   ├── analysis/
+│   ├── embeddings/
+│   ├── evaluation/
+│   ├── model/
+│   ├── preprocessing/
+│   ├── training/
+│   ├── utils/
+│   └── visualization/
+│
+├── tests/
+>>>>>>> Stashed changes
 │
 ├── requirements.txt
 ├── environment.yml
@@ -97,6 +140,59 @@ Extract the archive into the project directory before running the training or ev
 
 ---
 
+## Quick Start
+
+```bash
+git clone https://github.com/srajalcodes/MoDAN.git
+
+cd MoDAN
+
+conda env create -f environment.yml
+
+conda activate ddi_final
+
+python src/utils/setup_data.py
+```
+
+The setup script automatically downloads the official reproducibility package from Zenodo, extracts the archive, and installs:
+
+- Pre-trained model weights
+- Embedding dictionaries
+- Processed DrugBank datasets
+- External benchmark splits
+
+No manual file organization is required.
+
+---
+
+## Repository Workflow
+
+The repository is organized into two complementary components.
+
+### GitHub
+
+Contains:
+
+- Source code
+- Training pipelines
+- Evaluation scripts
+- Statistical analyses
+- Figure generation
+- Documentation
+
+### Zenodo
+
+Contains:
+
+- Pre-trained MoDAN checkpoint
+- Embedding dictionaries
+- Processed evaluation datasets
+- Benchmark splits
+
+This separation keeps the GitHub repository lightweight while ensuring full reproducibility.
+
+---
+
 ## Dataset Acquisition
 
 This study utilizes DrugBank v5.1.13.
@@ -116,6 +212,7 @@ Additional biological annotations are retrieved from:
 
 The complete reproducibility package is divided between GitHub and Zenodo.
 
+<<<<<<< Updated upstream
 ### GitHub Repository
 
 This repository contains:
@@ -126,6 +223,13 @@ This repository contains:
 - Documentation
 - Statistical analysis scripts
 - Figure generation utilities
+=======
+For most users, dataset reconstruction is **not required**.
+
+The processed datasets distributed through the Zenodo archive are sufficient to reproduce all experiments reported in the manuscript.
+
+Dataset reconstruction is only necessary for researchers wishing to regenerate the DrugBank dataset from the original XML release.
+>>>>>>> Stashed changes
 
 ### Zenodo Archive
 
@@ -145,6 +249,18 @@ The Zenodo archive contains:
 
 Due to DrugBank licensing restrictions, the original DrugBank XML database is **not redistributed**. Researchers must obtain an academic license directly from DrugBank before running the dataset reconstruction pipeline.
 
+<<<<<<< Updated upstream
+=======
+The complete reproducibility package is distributed across two repositories:
+
+- **GitHub:** source code, documentation, and analysis scripts.
+- **Zenodo:** model checkpoints, embeddings, processed datasets, and benchmark splits.
+
+This separation follows common reproducible research practices for repositories containing large model artifacts.
+
+---
+
+>>>>>>> Stashed changes
 ## Dataset Reconstruction
 
 After obtaining DrugBank:
@@ -276,6 +392,7 @@ The repository includes:
 
 ---
 
+<<<<<<< Updated upstream
 ## Model Availability
 
 The complete reproducibility package is available through Zenodo:
@@ -309,6 +426,17 @@ Zenodo.
 
 https://doi.org/10.5281/zenodo.21221081
 
+=======
+## Citation
+
+If you use MoDAN in your research, please cite:
+
+1. The accompanying manuscript (upon publication).
+
+2. The reproducibility archive:
+
+> Sharma, D., Tiwari, S., Singh, J., & Singh, T. (2026). *Dataset and Pre-Trained Weights for MoDAN: An Interpretable Modality-Disentangled Attention Network for Zero-Shot Drug–Drug Interaction Prediction*. Zenodo. https://doi.org/10.5281/zenodo.21221081
+>>>>>>> Stashed changes
 
 ---
 
