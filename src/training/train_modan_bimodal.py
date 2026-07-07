@@ -10,9 +10,6 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-# =============================================================================
-# 1. ARCHITECTURE (Copied exactly from your final_ddi_model.py)
-# =============================================================================
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -77,9 +74,6 @@ class ModalAttnDDI(nn.Module):
         h = torch.cat([I_chem, I_esm, I_bio, D_chem, D_esm, D_bio], dim=-1)
         return self.classifier(h).squeeze(-1)
 
-# =============================================================================
-# 2. ON-THE-FLY DATASET
-# =============================================================================
 class OnTheFlyDDIDataset(Dataset):
     def __init__(self, csv_path, chem_dict, esm_dict, bio_dict, c_dim, e_dim, b_dim):
         print(f"Loading {csv_path} into RAM...")
@@ -108,9 +102,6 @@ class OnTheFlyDDIDataset(Dataset):
 
         return drug_a, drug_b, lbl
 
-# =============================================================================
-# 3. TRAINING & EVALUATION
-# =============================================================================
 def evaluate(model, loader, device, name):
     print(f"\n--- Evaluating on {name} ---")
     model.eval()
@@ -140,10 +131,10 @@ def main():
     parser.add_argument("--chemberta", required=True)
     parser.add_argument("--esm2", required=True)
     parser.add_argument("--biobert", required=True)
-    parser.add_argument("--train_csv", default="train_cold.csv")
-    parser.add_argument("--s1_csv", default="test_cold_S1.csv")
-    parser.add_argument("--s2_csv", default="test_cold_S2.csv")
-    parser.add_argument("--output", default="final_biomodal_results.csv")
+    parser.add_argument("--train_csv", default= PROCESSED_DATA_DIR / "train_cold.csv")
+    parser.add_argument("--s1_csv", default= PROCESSED_DATA_DIR / "test_cold_S1.csv")
+    parser.add_argument("--s2_csv", default= PROCESSED_DATA_DIR / "test_cold_S2.csv")
+    parser.add_argument("--output", default= RESULTS_DIR / "final_biomodal_results.csv")
     parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--epochs", type=int, default=10) # Increased to 10
     args = parser.parse_args()

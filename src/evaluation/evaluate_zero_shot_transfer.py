@@ -6,10 +6,16 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
+from pathlib import Path
 
-# =============================================================================
-# 1. ARCHITECTURE (Must match the saved model exactly)
-# =============================================================================
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+EMBEDDINGS_DIR = DATA_DIR / "embeddings"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+BENCHMARK_DIR = DATA_DIR / "benchmark_splits"
+MODEL_DIR = ROOT / "models"
+
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -69,9 +75,6 @@ class ModalAttnDDI(nn.Module):
         h = torch.cat([I_chem, I_esm, I_bio, D_chem, D_esm, D_bio], dim=-1)
         return self.classifier(h).squeeze(-1)
 
-# =============================================================================
-# 2. DATASET & EVALUATION
-# =============================================================================
 class OnTheFlyDDIDataset(Dataset):
     def __init__(self, csv_path, chem_dict, esm_dict, bio_dict, c_dim, e_dim, b_dim):
         self.df = pd.read_csv(csv_path)
@@ -98,8 +101,8 @@ def main():
     parser.add_argument("--chemberta", required=True)
     parser.add_argument("--esm2", required=True)
     parser.add_argument("--biobert", required=True)
-    parser.add_argument("--test_csv", default=r"..\benchmark_splits\BIOSNAP_test_cold_S2.csv")
-    parser.add_argument("--model_path", default="best_biomodal_model.pt")
+    parser.add_argument("--test_csv", default=BENCHMARK_DIR / "BIOSNAP_test_cold_S2.csv")
+    parser.add_argument("--model_path", default=MODEL_DIR / "best_biomodal_model.pt")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

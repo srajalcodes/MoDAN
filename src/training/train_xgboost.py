@@ -35,7 +35,6 @@ def evaluate(model, csv_path, chem, esm, chem_dim, esm_dim, name):
     all_preds = []
     all_true = []
     
-    # Read the test set in chunks so we don't crash the RAM
     chunk_size = 10000
     total_chunks = sum(1 for _ in open(csv_path)) // chunk_size
     
@@ -65,7 +64,7 @@ def main():
     chem_dim = len(next(iter(chem.values())))
     esm_dim = len(next(iter(esm.values())))
     
-    params = {
+    xgb_params = {
         "max_depth": 6,
         "eta": 0.1,
         "objective": "binary:logistic",
@@ -77,19 +76,15 @@ def main():
     model = None
     chunk_size = 10000
     
-    # Calculate total chunks for the progress bar
-    total_train_lines = sum(1 for _ in open(args.train_csv))
-    total_chunks = total_train_lines // chunk_size
+    num_training_rows = sum(1 for _ in open(args.train_csv))
+    total_chunks = num_training_rows // chunk_size
     
     print(f"\nTraining XGBoost incrementally on {args.train_csv} (Zero Hard Drive Space Used)...")
     
-    # Read the CSV in pieces. Process a piece, update the model, throw the piece away.
     for chunk in tqdm(pd.read_csv(args.train_csv, chunksize=chunk_size), total=total_chunks):
         X_batch, y_batch = get_features_for_batch(chunk, chem, esm, chem_dim, esm_dim)
         dtrain = xgb.DMatrix(X_batch, label=y_batch)
-        
-        # update the model with the new chunk
-        model = xgb.train(params, dtrain, num_boost_round=10, xgb_model=model)
+        model = xgb.train(xgb_params, dtrain, num_boost_round=10, xgb_model=model)
         
     print("\nTraining Complete! Now running evaluation...")
     
@@ -98,4 +93,4 @@ def main():
     evaluate(model, args.s2_csv, chem, esm, chem_dim, esm_dim, "S2 (New-New)")
 
 if __name__ == "__main__":
-    main()
+    main()  

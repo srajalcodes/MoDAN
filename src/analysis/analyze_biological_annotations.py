@@ -5,8 +5,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from pathlib import Path
 
-# --- Ultra-Modern Scientific Theme ---
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+BIOLOGICAL_DIR = DATA_DIR / "biological"
+METADATA_DIR = DATA_DIR / "metadata"
+
+# ------------------------------------------------------------------
+# Input Files
+# ------------------------------------------------------------------
+
+features_path = BIOLOGICAL_DIR / "biological_features_universal.json"
+
+vocab_path = BIOLOGICAL_DIR / "biological_vocab.json"
+
+drug_meta_path = METADATA_DIR / "final_drug_nodes.csv"
+
 sns.set_theme(style="ticks", context="paper", font_scale=1.2)
 plt.rcParams.update({
     'font.family': 'sans-serif',
@@ -27,19 +43,12 @@ def get_top_entities(features_dict, vocab_map, category, top_k=10):
     
     results = []
     for idx in top_indices:
-        # Some JSON dict keys might be strings, make sure we use integer indices
         results.append((reverse_map[idx], int(total_counts[idx])))
     return results
 
 def main():
     print("Loading biological data...")
-    
-    # 1. EXACT PATHS YOU PROVIDED
-    features_path = r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\Final_model ddi\outputs\biological_features_universal.json"
-    vocab_path = r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\Final_model ddi\outputs\biological_vocab.json"
-    drug_meta_path = r"dataset\final_drug_nodes.csv"
-    
-    # 2. Load the Vocab Dictionary
+
     with open(vocab_path, "r") as f:
         vocabs = json.load(f)
         
@@ -91,12 +100,14 @@ def main():
     plt.tight_layout()
     
     # Create Figures folder if it doesn't exist
-    os.makedirs("Figures", exist_ok=True)
+    RESULTS_DIR = ROOT / "results" / "figures" / "supplementary"
+
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     
     # Save as 1200 DPI PDF and PNG
-    plt.savefig(r"Figures\biological_distribution.pdf", dpi=1200, bbox_inches='tight')
-    plt.savefig(r"Figures\biological_distribution.png", dpi=300, bbox_inches='tight')
-    plt.savefig(r"Figures\biological_distribution.tif", dpi=1200, bbox_inches='tight', pil_kwargs={"compression": "tiff_lzw"})
+    plt.savefig(RESULTS_DIR / "figure_sXX_biological_distribution.pdf", dpi=1200, bbox_inches='tight')
+    plt.savefig(RESULTS_DIR / "figure_sXX_biological_distribution.png", dpi=300, bbox_inches='tight')
+    plt.savefig(RESULTS_DIR / "figure_sXX_biological_distribution.tif", dpi=1200, bbox_inches='tight', pil_kwargs={"compression": "tiff_lzw"})
     
     print("✅ Successfully saved to Figures/biological_distribution.pdf!")
 

@@ -2,11 +2,20 @@ import pandas as pd
 import numpy as np
 import pickle
 import torch
+from pathlib import Path
 import torch.nn as nn
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
 from torch.utils.data import DataLoader, Dataset
 
-# (Your architecture classes)
+
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+EMBEDDINGS_DIR = DATA_DIR / "embeddings"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+BENCHMARK_DIR = DATA_DIR / "benchmark_splits"
+MODEL_DIR = ROOT / "models"
+
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -99,17 +108,108 @@ def evaluate_strict(name, benchmark_csv, massive_train_csv, model, chem, esm, bi
     print(f"F1 Score:  {f1_score(all_labels, all_preds, zero_division=0):.4f}")
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Loading dictionaries...")
-    chem = pickle.load(open(r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\dataset\chembrta\chemberta_embeddings.pkl", "rb"))
-    esm = pickle.load(open(r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\dataset\ESM2\esm2_embeddings.pkl", "rb"))
-    bio = pickle.load(open(r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\Model_1\outputs\biobert_drug_embeddings.pkl", "rb"))
-    c_dim, e_dim, b_dim = len(next(iter(chem.values()))), len(next(iter(esm.values()))), len(next(iter(bio.values())))
 
-    print("Loading Pre-Trained Model...")
-    model = ModalAttnDDI(chem_dim=c_dim, esm_dim=e_dim, bio_dim=b_dim).to(device)
-    model.load_state_dict(torch.load(r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\Drug Drug Interaction\FInal_model\best_biomodal_model.pt", map_location=device))
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # ------------------------------------------------------------------
+    # File Paths
+    # ------------------------------------------------------------------
+    chemberta_path = EMBEDDINGS_DIR / "chemberta_embeddings.pkl"
+    esm2_path = EMBEDDINGS_DIR / "esm2_embeddings.pkl"
+    biobert_path = EMBEDDINGS_DIR / "biobert_drug_embeddings.pkl"
+
+    model_path = MODEL_DIR / "best_biomodal_model.pt"
+
+    train_dataset = PROCESSED_DATA_DIR / "train_cold.csv"
+
+    biosnap_dataset = BENCHMARK_DIR / "BIOSNAP_test_cold_S2.csv"
+    zhangddi_dataset = BENCHMARK_DIR / "ZhangDDI_test_cold_S2.csv"
+
+    # ------------------------------------------------------------------
+    # Verify Required Files
+    # ------------------------------------------------------------------
+    required_files = [
+        chemberta_path,
+        esm2_path,
+        biobert_path,
+        model_path,
+        train_dataset,
+        biosnap_dataset,
+        zhangddi_dataset,
+    ]
+
+    for file in required_files:
+        if not file.exists():
+            raise FileNotFoundError(f"Required file not found:\n{file}")
+
+    # ------------------------------------------------------------------
+    # Load Embeddings
+    # ------------------------------------------------------------------
+    print("Loading ChemBERTa embeddings...")
+    with open(chemberta_path, "rb") as f:
+        chem = pickle.load(f)
+
+    print("Loading ESM-2 embeddings...")
+    with open(esm2_path, "rb") as f:
+        esm = pickle.load(f)
+
+    print("Loading BioBERT embeddings...")
+    with open(biobert_path, "rb") as f:
+        bio = pickle.load(f)
+
+    c_dim = len(next(iter(chem.values())))
+    e_dim = len(next(iter(esm.values())))
+    b_dim = len(next(iter(bio.values())))
+
+    # ------------------------------------------------------------------
+    # Load Model
+    # ------------------------------------------------------------------
+    print("Loading pretrained MoDAN model...")
+
+    model = ModalAttnDDI(
+        chem_dim=c_dim,
+        esm_dim=e_dim,
+        bio_dim=b_dim
+    ).to(device)
+
+    model.load_state_dict(
+        torch.load(model_path, map_location=device)
+    )
+
     model.eval()
 
-    evaluate_strict("BIOSNAP", r"..\benchmark_splits\BIOSNAP_test_cold_S2.csv", r"..\dataset\train_cold.csv", model, chem, esm, bio, c_dim, e_dim, b_dim, device)
-    evaluate_strict("ZhangDDI", r"..\benchmark_splits\ZhangDDI_test_cold_S2.csv", r"..\dataset\train_cold.csv", model, chem, esm, bio, c_dim, e_dim, b_dim, device)
+    # ------------------------------------------------------------------
+    # Evaluate BIOSNAP
+    # ------------------------------------------------------------------
+    evaluate_strict(
+        "BIOSNAP",
+        biosnap_dataset,
+        train_dataset,
+        model,
+        chem,
+        esm,
+        bio,
+        c_dim,
+        e_dim,
+        b_dim,
+        device,
+    )
+
+    # ------------------------------------------------------------------
+    # Evaluate ZhangDDI
+    # ------------------------------------------------------------------
+    evaluate_strict(
+        "ZhangDDI",
+        zhangddi_dataset,
+        train_dataset,
+        model,
+        chem,
+        esm,
+        bio,
+        c_dim,
+        e_dim,
+        b_dim,
+        device,
+    )
+
+    print("\nEvaluation completed successfully.")

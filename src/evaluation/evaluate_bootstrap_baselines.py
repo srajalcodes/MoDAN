@@ -86,10 +86,10 @@ def main():
     lr_model = SGDClassifier(loss="log_loss", max_iter=1, learning_rate="optimal", random_state=42)
 
     print("\nTraining Baselines (XGBoost & LR) incrementally...")
-    total_chunks = sum(1 for _ in open(r"dataset\train_cold.csv")) // 10000
+    total_chunks = sum(1 for _ in open(PROCESSED_DATA_DIR / "train_cold.csv")) // 10000
     is_first = True
     
-    for chunk in tqdm(pd.read_csv(r"dataset\train_cold.csv", chunksize=10000), total=total_chunks):
+    for chunk in tqdm(pd.read_csv(PROCESSED_DATA_DIR / "train_cold.csv", chunksize=10000), total=total_chunks):
         X_batch, y_batch = get_features_for_batch(chunk, chem, esm, bio, c_dim, e_dim, b_dim)
         
         xgb_model = xgb.train(xgb_params, xgb.DMatrix(X_batch, label=y_batch), num_boost_round=10, xgb_model=xgb_model)
@@ -100,8 +100,8 @@ def main():
             lr_model.partial_fit(X_batch, y_batch)
 
     # Evaluate and Bootstrap
-    evaluate_models(xgb_model, lr_model, r"dataset\test_cold_S1.csv", chem, esm, bio, c_dim, e_dim, b_dim, "S1 (Known-New)")
-    evaluate_models(xgb_model, lr_model, r"dataset\test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim, "S2 (New-New)")
+    evaluate_models(xgb_model, lr_model, PROCESSED_DATA_DIR / "test_cold_S1.csv", chem, esm, bio, c_dim, e_dim, b_dim, "S1 (Known-New)")
+    evaluate_models(xgb_model, lr_model, PROCESSED_DATA_DIR / "test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim, "S2 (New-New)")
 
 if __name__ == "__main__":
     main()

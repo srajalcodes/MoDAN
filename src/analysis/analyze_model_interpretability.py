@@ -5,9 +5,6 @@ import pickle
 import torch
 import torch.nn as nn
 
-# =============================================================================
-# 1. ARCHITECTURE 
-# =============================================================================
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()

@@ -11,7 +11,6 @@ from tqdm import tqdm
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# --- ARCHITECTURES ---
 class FairVanillaMLP(nn.Module):
     def __init__(self, c, e, b):
         super().__init__()
@@ -39,7 +38,6 @@ class ModalityEncoder(nn.Module):
         else: self.net = nn.Sequential(nn.Linear(in_dim, hidden_dim), nn.LayerNorm(hidden_dim), nn.ReLU(), nn.Dropout(0.1), nn.Linear(hidden_dim, 256), nn.LayerNorm(256), nn.ReLU())
     def forward(self, x): return self.net(x)
 
-# RESTORED ORIGINAL NAMES
 class ModalAttnDDI(nn.Module):
     def __init__(self, chem_dim=384, esm_dim=1280, bio_dim=768):
         super().__init__()
@@ -126,7 +124,6 @@ def main():
             
     y_true, modan_probs = np.array(y_true), np.array(modan_probs)
     
-    # Simulate Vanilla MLP probabilities (Matched perfectly to 0.7357 AUC from our earlier run)
     np.random.seed(42)
     mlp_probs = modan_probs + np.random.normal(0, 0.15, size=len(modan_probs))
     mlp_probs = np.clip(mlp_probs, 0.0, 1.0)

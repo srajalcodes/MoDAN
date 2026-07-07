@@ -10,7 +10,6 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-# (Architecture is identical to your original BiomodalAttnNet)
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -112,10 +111,10 @@ def main():
     parser.add_argument("--chemberta", required=True)
     parser.add_argument("--esm2", required=True)
     parser.add_argument("--biobert", required=True)
-    parser.add_argument("--train_csv", default="train_cold.csv")
-    parser.add_argument("--s1_csv", default="test_cold_S1.csv")
-    parser.add_argument("--s2_csv", default="test_cold_S2.csv")
-    parser.add_argument("--model_save_path", default="best_biomodal_model.pt")
+    parser.add_argument("--train_csv", default=PROCESSED_DATA_DIR / "train_cold.csv")
+    parser.add_argument("--s1_csv", default=PROCESSED_DATA_DIR / "test_cold_S1.csv")
+    parser.add_argument("--s2_csv", default=PROCESSED_DATA_DIR / "test_cold_S2.csv")
+    parser.add_argument("--model_save_path", default=RESULTS_DIR / "best_biomodal_model.pt")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

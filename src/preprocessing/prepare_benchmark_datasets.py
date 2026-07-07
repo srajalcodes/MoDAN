@@ -4,6 +4,22 @@ import pickle
 import random
 import os
 from sklearn.model_selection import train_test_split
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+DATA_DIR = ROOT / "data"
+EMBEDDING_DIR = DATA_DIR / "embeddings"
+BENCHMARK_DIR = DATA_DIR / "benchmarks"
+
+chemberta_path = EMBEDDING_DIR / "chemberta_embeddings.pkl"
+biosnap_path = BENCHMARK_DIR / "ChCh-Miner_durgbank-chem-chem.tsv"
+stanford_npz_path = BENCHMARK_DIR / "drugbank_v5_stanfordnlp.npz"
+
+out_dir = ROOT / "data" / "benchmark_splits"
+
+out_dir.mkdir(parents=True, exist_ok=True)
 
 def set_seeds(seed=42):
     np.random.seed(seed)
@@ -12,7 +28,6 @@ def set_seeds(seed=42):
 def generate_benchmark_splits(edges_list, valid_drugs, dataset_name, out_dir):
     print(f"\n--- Processing {dataset_name} ---")
     
-    # 1. Filter out drugs we don't have embeddings for
     valid_edges = []
     for d1, d2 in edges_list:
         if d1 in valid_drugs and d2 in valid_drugs:
@@ -29,7 +44,7 @@ def generate_benchmark_splits(edges_list, valid_drugs, dataset_name, out_dir):
         print("Error: No overlapping drugs found!")
         return
 
-    # 2. Get unique drugs in this filtered benchmark
+    # 2. Get unique drugs
     benchmark_drugs = list(set([d for pair in valid_edges for d in pair]))
     print(f"Unique drugs in {dataset_name}: {len(benchmark_drugs)}")
 
@@ -81,22 +96,13 @@ def generate_benchmark_splits(edges_list, valid_drugs, dataset_name, out_dir):
 
 def main():
     set_seeds(42)
-    
-    # --- UPDATE THESE PATHS ---
-    chemberta_path = r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\dataset\chembrta\chemberta_embeddings.pkl"
-    biosnap_path = r"D:\research_datasets\DDI\ChCh-Miner_durgbank-chem-chem.tsv"
-    stanford_npz_path = r"D:\research_datasets\DDI\drugbank_v5_stanfordnlp.npz"
-    out_dir = "benchmark_splits"
-    
+ 
     print("Loading valid drugs from ChemBERTa embeddings...")
     with open(chemberta_path, "rb") as f:
         chem = pickle.load(f)
     valid_drugs = set(chem.keys())
     print(f"Total valid drugs available: {len(valid_drugs)}")
-    
-    # ========================================================
-    # Process BIOSNAP
-    # ========================================================
+
     print("\nReading BIOSNAP TSV...")
     try:
         biosnap_df = pd.read_csv(biosnap_path, sep='\t')
@@ -107,15 +113,11 @@ def main():
     except Exception as e:
         print(f"Failed to process BIOSNAP: {e}")
 
-    # ========================================================
-    # Process Stanford NPZ (Investigation)
-    # ========================================================
     print("\nReading Stanford NPZ...")
     try:
         npz_data = np.load(stanford_npz_path, allow_pickle=True)
         print("NPZ internal keys found:", npz_data.files)
         
-        # We will print the shapes of the arrays inside the NPZ to understand it
         for key in npz_data.files:
             data = npz_data[key]
             if isinstance(data, np.ndarray):

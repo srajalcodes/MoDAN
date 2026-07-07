@@ -67,8 +67,8 @@ def main():
     model = SGDClassifier(loss="log_loss", max_iter=1, learning_rate="optimal", random_state=42)
     
     chunk_size = 10000
-    total_train_lines = sum(1 for _ in open(args.train_csv))
-    total_chunks = total_train_lines // chunk_size
+    num_training_rows = sum(1 for _ in open(args.train_csv))
+    total_chunks = num_training_rows // chunk_size
     
     print(f"\nTraining Logistic Regression incrementally on {args.train_csv}...")
     is_first_batch = True

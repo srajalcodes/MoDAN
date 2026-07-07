@@ -7,10 +7,20 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score, average_precision_score
 from tqdm import tqdm
+from pathlib import Path
 
-# =============================================================================
-# 1. ARCHITECTURE (Must match the saved model exactly)
-# =============================================================================
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+
+EMBEDDINGS_DIR = DATA_DIR / "embeddings"
+
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+
+BENCHMARK_DIR = DATA_DIR / "benchmark_splits"
+
+MODEL_DIR = ROOT / "models"
+
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -91,9 +101,6 @@ class OnTheFlyDDIDataset(Dataset):
         drug_b = torch.tensor(np.concatenate([c2, e2, b2]), dtype=torch.float32)
         return drug_a, drug_b, torch.tensor(label, dtype=torch.float32)
 
-# =============================================================================
-# 3. BOOTSTRAP STATISTICAL TESTING
-# =============================================================================
 def bootstrap_metrics(y_true, y_prob, n_bootstraps=1000):
     """ Resamples predictions 1000 times to calculate standard deviation and PR-AUC """
     print("Running 1000-iteration bootstrap for statistical significance...")
@@ -146,7 +153,7 @@ def main():
     parser.add_argument("--chemberta", required=True)
     parser.add_argument("--esm2", required=True)
     parser.add_argument("--biobert", required=True)
-    parser.add_argument("--model_path", default=r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\Drug Drug Interaction\FInal_model\best_biomodal_model.pt")
+    parser.add_argument("--model_path", required=True)
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -161,13 +168,58 @@ def main():
     model = ModalAttnDDI(chem_dim=c_dim, esm_dim=e_dim, bio_dim=b_dim).to(device)
     model.load_state_dict(torch.load(args.model_path, map_location=device))
     
-    # 1. Custom Dataset S1 & S2
-    evaluate_and_bootstrap(model, r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\Drug Drug Interaction\dataset\test_cold_S1.csv", chem, esm, bio, c_dim, e_dim, b_dim, device, "DrugBank Custom S1")
-    evaluate_and_bootstrap(model, r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\Drug Drug Interaction\dataset\test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim, device, "DrugBank Custom S2")
-    
-    # 2. Benchmarks S2
-    evaluate_and_bootstrap(model, r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\Drug Drug Interaction\benchmark_splits\BIOSNAP_test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim, device, "BIOSNAP S2 Transfer")
-    evaluate_and_bootstrap(model, r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\Drug Drug Interaction\benchmark_splits\ZhangDDI_test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim, device, "ZhangDDI S2 Transfer")
+    # 1. Custom DrugBank Dataset (S1 & S2)
+    evaluate_and_bootstrap(
+        model,
+        PROCESSED_DATA_DIR / "test_cold_S1.csv",
+        chem,
+        esm,
+        bio,
+        c_dim,
+        e_dim,
+        b_dim,
+        device,
+        "DrugBank Custom S1",
+    )
 
+    evaluate_and_bootstrap(
+        model,
+        PROCESSED_DATA_DIR / "test_cold_S2.csv",
+        chem,
+        esm,
+        bio,
+        c_dim,
+        e_dim,
+        b_dim,
+        device,
+        "DrugBank Custom S2",
+    )
+
+    # 2. External Benchmark Evaluation (Strict S2)
+    evaluate_and_bootstrap(
+        model,
+        BENCHMARK_DIR / "BIOSNAP_test_cold_S2.csv",
+        chem,
+        esm,
+        bio,
+        c_dim,
+        e_dim,
+        b_dim,
+        device,
+        "BIOSNAP S2 Transfer",
+    )
+
+    evaluate_and_bootstrap(
+        model,
+        BENCHMARK_DIR / "ZhangDDI_test_cold_S2.csv",
+        chem,
+        esm,
+        bio,
+        c_dim,
+        e_dim,
+        b_dim,
+        device,
+        "ZhangDDI S2 Transfer",
+    )
 if __name__ == "__main__":
     main()

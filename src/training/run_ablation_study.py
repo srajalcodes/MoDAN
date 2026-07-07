@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
 
-# (Insert your exact ModalAttnDDI Architecture classes here: GatedCrossAttn, ModalityEncoder, ModalAttnDDI)
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -53,7 +52,6 @@ class ModalAttnDDI(nn.Module):
         D_chem, D_esm, D_bio = chem_a - chem_b, esm_a - esm_b, bio_a - bio_b
         return self.classifier(torch.cat([I_chem, I_esm, I_bio, D_chem, D_esm, D_bio], dim=-1)).squeeze(-1)
 
-# Dataset handles the ablation masking
 class AblationDataset(Dataset):
     def __init__(self, csv_path, chem_dict, esm_dict, bio_dict, c_dim, e_dim, b_dim, mode):
         self.df = pd.read_csv(csv_path)

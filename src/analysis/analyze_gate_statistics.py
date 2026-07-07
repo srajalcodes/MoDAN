@@ -9,9 +9,12 @@ from tqdm import tqdm
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# =============================================================================
-# 1. MoDAN ARCHITECTURE
-# =============================================================================
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+MODEL_DIR = ROOT / "models"
+
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -81,7 +84,7 @@ def main():
     parser.add_argument("--chemberta", required=True)
     parser.add_argument("--esm2", required=True)
     parser.add_argument("--biobert", required=True)
-    parser.add_argument("--model_path", default=r"FInal_model\best_biomodal_model.pt")
+    parser.add_argument("--model_path", default= MODEL_DIR / "best_biomodal_model.pt")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -98,7 +101,7 @@ def main():
     model.eval()
 
     print("\nScanning S2 Unseen dataset for Global Gate Statistics...")
-    dataset = OnTheFlyDDIDataset(r"dataset\test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim)
+    dataset = OnTheFlyDDIDataset(PROCESSED_DATA_DIR / "test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim)
     loader = DataLoader(dataset, batch_size=512, shuffle=False)
     
     chem_gates, esm_gates, bio_gates = [], [], []

@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader, Dataset
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# --- MoDAN ARCHITECTURE ---
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()

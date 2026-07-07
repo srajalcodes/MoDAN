@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument("--train_csv", default="train_cold.csv")
     parser.add_argument("--s1_csv", default="test_cold_S1.csv")
     parser.add_argument("--s2_csv", default="test_cold_S2.csv")
-    parser.add_argument("--output", default="model1_cold_results.csv")
+    parser.add_argument("--output", default="multimodal_xgboost_results.csv")
     return parser.parse_args()
 
 def get_features_for_batch(df_chunk, chem, esm, bio, chem_dim, esm_dim, bio_dim):

@@ -7,9 +7,14 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from sklearn.calibration import calibration_curve
 import matplotlib.pyplot as plt
-import seaborn as sns
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+MODEL_DIR = ROOT / "models"
 
 # --- MoDAN ARCHITECTURE ---
 class GatedCrossAttn(nn.Module):
@@ -85,8 +90,8 @@ def main():
     parser.add_argument("--chemberta", required=True)
     parser.add_argument("--esm2", required=True)
     parser.add_argument("--biobert", required=True)
-    parser.add_argument("--test_csv", default=r"dataset\test_cold_S2.csv")
-    parser.add_argument("--model_path", default=r"FInal_model\best_biomodal_model.pt")
+    parser.add_argument("--test_csv", default=PROCESSED_DATA_DIR / "test_cold_S2.csv")
+    parser.add_argument("--model_path", default=MODEL_DIR / "best_biomodal_model.pt")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

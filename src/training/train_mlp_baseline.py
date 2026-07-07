@@ -12,8 +12,7 @@ class FairVanillaMLP(nn.Module):
     def __init__(self, chem_dim=384, esm_dim=1280, bio_dim=768):
         super().__init__()
         input_dim = (chem_dim + esm_dim + bio_dim) * 2 # 4864
-        
-        # A standard, literature-accurate MLP bottleneck (Prevents brute-force memorization)
+    
         self.net = nn.Sequential(
             nn.Linear(input_dim, 512),
             nn.LayerNorm(512),
@@ -37,7 +36,6 @@ class FairVanillaMLP(nn.Module):
         x = torch.cat([drug_a, drug_b], dim=-1)
         return self.net(x).squeeze(-1)
 
-# --- Dataset ---
 class OnTheFlyDDIDataset(Dataset):
     def __init__(self, csv_path, chem_dict, esm_dict, bio_dict, c_dim, e_dim, b_dim):
         self.df = pd.read_csv(csv_path)

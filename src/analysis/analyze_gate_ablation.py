@@ -6,7 +6,12 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 from tqdm import tqdm
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# --- UNGATED CROSS-ATTENTION ---
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+
+
 class UngatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -14,12 +19,11 @@ class UngatedCrossAttn(nn.Module):
         self.norm = nn.LayerNorm(dim)
         self.drop = nn.Dropout(0.1)
     def forward(self, a, b):
-        # EXACT SAME ATTENTION, BUT NO SIGMOID GATE APPLIED!
+
         a_seq, b_seq = a.unsqueeze(1), b.unsqueeze(1)
         attn_out, _ = self.attn(a_seq, b_seq, b_seq)
         return self.norm(self.drop(attn_out.squeeze(1)))
 
-# (Standard Encoders)
 class ModalityEncoder(nn.Module):
     def __init__(self, in_dim, hidden_dim=None):
         super().__init__()
@@ -78,8 +82,8 @@ def main():
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     criterion = nn.BCEWithLogitsLoss()
 
-    train_loader = DataLoader(OnTheFlyDDIDataset(r"dataset\train_cold.csv", chem, esm, bio, c, e, b), batch_size=512, shuffle=True)
-    s2_loader = DataLoader(OnTheFlyDDIDataset(r"dataset\test_cold_S2.csv", chem, esm, bio, c, e, b), batch_size=512)
+    train_loader = DataLoader(OnTheFlyDDIDataset(PROCESSED_DATA_DIR / "train_cold.csv", chem, esm, bio, c, e, b), batch_size=512, shuffle=True)
+    s2_loader = DataLoader(OnTheFlyDDIDataset(PROCESSED_DATA_DIR / "test_cold_S2.csv", chem, esm, bio, c, e, b), batch_size=512)
 
     print("Training UNGATED MoDAN Ablation...")
     best_s2 = 0.0

@@ -20,8 +20,6 @@ def process_file(csv_path, out_prefix, chem, esm, chem_dim, esm_dim):
     
     X_out_path = f"{out_prefix}_X.npy"
     y_out_path = f"{out_prefix}_y.npy"
-
-    # Create empty files DIRECTLY on the hard drive (Bypasses RAM limits)
     X_mmap = np.lib.format.open_memmap(X_out_path, mode='w+', dtype=np.float32, shape=(num_rows, feature_dim))
     y_mmap = np.lib.format.open_memmap(y_out_path, mode='w+', dtype=np.int32, shape=(num_rows,))
 
@@ -40,7 +38,6 @@ def process_file(csv_path, out_prefix, chem, esm, chem_dim, esm_dim):
         X_batch.append(np.concatenate([vec1, vec2]))
         y_batch.append(row["label"])
 
-        # Every 10,000 rows, write to the hard drive and clear the RAM
         if len(X_batch) == batch_size:
             X_mmap[current_idx : current_idx + batch_size] = X_batch
             y_mmap[current_idx : current_idx + batch_size] = y_batch
@@ -48,12 +45,10 @@ def process_file(csv_path, out_prefix, chem, esm, chem_dim, esm_dim):
             X_batch = []
             y_batch = []
 
-    # Write whatever is left over
     if len(X_batch) > 0:
         X_mmap[current_idx:] = X_batch
         y_mmap[current_idx:] = y_batch
 
-    # Force save to disk
     X_mmap.flush()
     y_mmap.flush()
     
@@ -71,7 +66,6 @@ def main():
     esm_dim = len(next(iter(esm.values())))
     print(f"Feature Dimensions - ChemBERTa: {chem_dim}, ESM2: {esm_dim}. Total per pair: {(chem_dim*2) + (esm_dim*2)}")
 
-    # Process all 5 files
     files_to_process = [
         ("train_S0.csv", f"{args.output_dir}/S0_train"),
         ("test_S0.csv", f"{args.output_dir}/S0_test"),

@@ -7,9 +7,17 @@ from rdkit.Chem import AllChem
 from rdkit import DataStructs
 from tqdm import tqdm
 import warnings
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = ROOT / "data"
+METADATA_DIR = DATA_DIR / "metadata"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
 # Suppress RDKit warnings for messy SMILES
 warnings.filterwarnings("ignore")
+
 
 # Modern Academic Styling
 sns.set_theme(style="ticks", context="paper", font_scale=1.2)
@@ -29,17 +37,26 @@ def get_fingerprint(smiles):
 
 def main():
     print("Loading datasets...")
-    # Load the drug metadata to get SMILES
-    nodes_df = pd.read_csv(r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\dataset\final_drug_nodes.csv")
-    smiles_dict = dict(zip(nodes_df['drugbank_id'], nodes_df['smiles']))
 
-    # Load S2 and Train splits
-    train_df = pd.read_csv(r"dataset\train_cold.csv")
-    s2_df = pd.read_csv(r"dataset\test_cold_S2.csv")
+    nodes_path = METADATA_DIR / "final_drug_nodes.csv"
+    train_path = PROCESSED_DATA_DIR / "train_cold.csv"
+    s2_path = PROCESSED_DATA_DIR / "test_cold_S2.csv"
 
-    # Extract unique drugs
-    seen_drugs = set(train_df['drug_A']).union(set(train_df['drug_B']))
-    unseen_drugs = set(s2_df['drug_A']).union(set(s2_df['drug_B']))
+
+    for file in [nodes_path, train_path, s2_path]:
+        if not file.exists():
+            raise FileNotFoundError(f"Required file not found:\n{file}")
+
+
+    nodes_df = pd.read_csv(nodes_path)
+    smiles_dict = dict(zip(nodes_df["drugbank_id"], nodes_df["smiles"]))
+
+
+    train_df = pd.read_csv(train_path)
+    s2_df = pd.read_csv(s2_path)
+
+    seen_drugs = set(train_df["drug_A"]).union(train_df["drug_B"])
+    unseen_drugs = set(s2_df["drug_A"]).union(s2_df["drug_B"])
 
     print(f"Total Seen Drugs (Train): {len(seen_drugs)}")
     print(f"Total Unseen Drugs (S2): {len(unseen_drugs)}")
