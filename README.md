@@ -44,7 +44,7 @@ MoDAN substantially outperforms classical machine learning baselines while maint
 
 ```text
 MoDAN/
-<<<<<<< Updated upstream
+│
 ├── configs/
 │
 ├── data/
@@ -76,7 +76,6 @@ MoDAN/
 │   └── visualization/
 │
 ├── tests/
->>>>>>> Stashed changes
 │
 ├── requirements.txt
 ├── environment.yml
@@ -99,23 +98,6 @@ conda activate ddi_final
 ```bash
 pip install -r requirements.txt
 ```
-## Quick Start
-
-```bash
-git clone https://github.com/srajalcodes/MoDAN.git
-
-cd MoDAN
-
-conda env create -f environment.yml
-
-conda activate ddi_final
-```
-
-Download the reproducibility package from Zenodo:
-
-https://doi.org/10.5281/zenodo.21221081
-
-Extract the archive into the project directory before running the training or evaluation scripts.
 
 ---
 
@@ -191,24 +173,11 @@ Additional biological annotations are retrieved from:
 
 The complete reproducibility package is divided between GitHub and Zenodo.
 
-<<<<<<< Updated upstream
-### GitHub Repository
-
-This repository contains:
-
-- Source code
-- Training and evaluation scripts
-- Configuration files
-- Documentation
-- Statistical analysis scripts
-- Figure generation utilities
-=======
 For most users, dataset reconstruction is **not required**.
 
 The processed datasets distributed through the Zenodo archive are sufficient to reproduce all experiments reported in the manuscript.
 
 Dataset reconstruction is only necessary for researchers wishing to regenerate the DrugBank dataset from the original XML release.
->>>>>>> Stashed changes
 
 ### Zenodo Archive
 
@@ -228,8 +197,6 @@ The Zenodo archive contains:
 
 Due to DrugBank licensing restrictions, the original DrugBank XML database is **not redistributed**. Researchers must obtain an academic license directly from DrugBank before running the dataset reconstruction pipeline.
 
-<<<<<<< Updated upstream
-=======
 The complete reproducibility package is distributed across two repositories:
 
 - **GitHub:** source code, documentation, and analysis scripts.
@@ -239,7 +206,6 @@ This separation follows common reproducible research practices for repositories 
 
 ---
 
->>>>>>> Stashed changes
 ## Dataset Reconstruction
 
 After obtaining DrugBank:
@@ -371,41 +337,6 @@ The repository includes:
 
 ---
 
-<<<<<<< Updated upstream
-## Model Availability
-
-The complete reproducibility package is available through Zenodo:
-
-https://doi.org/10.5281/zenodo.21221081
-
-The archive contains:
-
-- Pre-trained model weights
-- Multimodal embeddings
-- Evaluation datasets
-- Benchmark splits
-
-The source code is maintained on GitHub.
-
----
-
-## Citation
-
-If you use this repository, please cite:
-
-1. The accompanying manuscript (once published).
-
-2. The Zenodo reproducibility archive:
-
-Sharma D., Tiwari S., Singh J., Singh T.
-
-*Dataset and Pre-Trained Weights for MoDAN.*
-
-Zenodo.
-
-https://doi.org/10.5281/zenodo.21221081
-
-=======
 ## Citation
 
 If you use MoDAN in your research, please cite:
@@ -415,7 +346,6 @@ If you use MoDAN in your research, please cite:
 2. The reproducibility archive:
 
 > Sharma, D., Tiwari, S., Singh, J., & Singh, T. (2026). *Dataset and Pre-Trained Weights for MoDAN: An Interpretable Modality-Disentangled Attention Network for Zero-Shot Drug–Drug Interaction Prediction*. Zenodo. https://doi.org/10.5281/zenodo.21221081
->>>>>>> Stashed changes
 
 ---
 
