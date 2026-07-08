@@ -1,356 +1,135 @@
-# MoDAN: Modality-Disentangled Attention Network for Topology-Free Drug–Drug Interaction Prediction
+# MoDAN: Modality-Disentangled Attention Network for DDI Prediction
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+
+<p align="center">
+  <img src="results/figures/main/figure_01_modan_architecture.png" alt="MoDAN Architecture" width="800"/>
+</p>
 
 ## Overview
 
-MoDAN (Modality-Disentangled Attention Network) is a multimodal deep learning framework for drug–drug interaction (DDI) prediction under strict inductive and zero-shot evaluation settings.
+**MoDAN** is a topology-free multimodal deep learning framework for drug–drug interaction (DDI) prediction. Unlike graph-based methods, MoDAN operates on intrinsic drug properties alone and generalizes to previously unseen compounds.
 
-Unlike graph-based methods that rely on interaction-network topology, MoDAN operates exclusively on intrinsic drug properties and therefore remains applicable to previously unseen compounds where network information is unavailable.
+Integrates **ChemBERTa** (molecules) + **ESM-2** (proteins) + **BioBERT** (pathways) via gated cross-attention that dynamically filters noisy modalities.
 
-The framework integrates:
-* **ChemBERTa** molecular embeddings
-* **ESM-2** protein sequence embeddings
-* **BioBERT** biological pathway embeddings
+## 🎯 Key Results
 
-through a modality-disentangled gated cross-attention architecture that dynamically filters noisy modalities while preserving complementary biological information.
+| Dataset | S1 (Old-New) | S2 (New-New) | BIOSNAP | ZhangDDI |
+|---------|--------------|--------------|---------|----------|
+| **ROC-AUC** | 0.8548 ± 0.0004 | **0.7378 ± 0.0015** | 0.7296 ± 0.0094 | 0.7232 ± 0.0040 |
 
-## Highlights
-
-- Topology-free multimodal DDI prediction
-- Strict inductive and zero-shot evaluation
-- Fully reproducible research repository
-- Automated dataset installation via Zenodo
-- Cross-platform support (Windows, Linux, macOS)
+Strictly inductive evaluation on completely held-out compounds.
 
 ---
 
-## Key Results
-
-| Dataset  | Evaluation Setting | ROC-AUC         |
-| -------- | ------------------ | --------------- |
-| DrugBank | S1 (Old-New)       | 0.8548 ± 0.0004 |
-| DrugBank | S2 (New-New)       | 0.7378 ± 0.0015 |
-| BIOSNAP  | Zero-Shot Transfer | 0.7296 ± 0.0094 |
-| ZhangDDI | Zero-Shot Transfer | 0.7232 ± 0.0040 |
-
-MoDAN substantially outperforms classical machine learning baselines while maintaining robust generalization to previously unseen drugs and external datasets.
-
----
-
-## Repository Structure
-
-```text
-MoDAN/
-│
-├── configs/
-│
-├── data/
-│   ├── benchmark_splits/
-│   ├── biological/
-│   ├── embeddings/
-│   ├── metadata/
-│   └── processed/
-│
-├── docs/
-│
-├── models/
-│
-├── notebooks/
-│
-├── results/
-│   ├── figures/
-│   ├── logs/
-│   └── tables/
-│
-├── src/
-│   ├── analysis/
-│   ├── embeddings/
-│   ├── evaluation/
-│   ├── model/
-│   ├── preprocessing/
-│   ├── training/
-│   ├── utils/
-│   └── visualization/
-│
-├── tests/
-│
-├── requirements.txt
-├── environment.yml
-└── README.md
-```
-
----
-
-## Installation
-
-### Conda Environment
+## ⚡ Quick Start
 
 ```bash
-conda env create -f environment.yml
-conda activate ddi_final
-```
-
-### Pip Installation
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Quick Start
-
-```bash
+# 1. Clone & install
 git clone https://github.com/srajalcodes/MoDAN.git
-
 cd MoDAN
-
 conda env create -f environment.yml
-
 conda activate ddi_final
 
+# 2. Download weights & data
 python src/utils/setup_data.py
+
+# 3. Evaluate
+python src/evaluation/compute_evaluation_metrics.py
 ```
 
-The setup script automatically downloads the official reproducibility package from Zenodo, extracts the archive, and installs:
-
-- Pre-trained model weights
-- Embedding dictionaries
-- Processed DrugBank datasets
-- External benchmark splits
-
-No manual file organization is required.
+That's it. `setup_data.py` automatically downloads from Zenodo and organizes everything.
 
 ---
 
-## Repository Workflow
+## 📖 Usage
 
-The repository is organized into two complementary components.
-
-### GitHub
-
-Contains:
-
-- Source code
-- Training pipelines
-- Evaluation scripts
-- Statistical analyses
-- Figure generation
-- Documentation
-
-### Zenodo
-
-Contains:
-
-- Pre-trained MoDAN checkpoint
-- Embedding dictionaries
-- Processed evaluation datasets
-- Benchmark splits
-
-This separation keeps the GitHub repository lightweight while ensuring full reproducibility.
-
----
-
-## Dataset Acquisition
-
-This study utilizes DrugBank v5.1.13.
-
-Due to DrugBank licensing restrictions, the original dataset cannot be redistributed through this repository.
-
-Researchers should obtain DrugBank directly through the official academic licensing program.
-
-Additional biological annotations are retrieved from:
-
-* UniProt
-* PubChem
-
----
-
-## Data and Model Availability
-
-The complete reproducibility package is divided between GitHub and Zenodo.
-
-For most users, dataset reconstruction is **not required**.
-
-The processed datasets distributed through the Zenodo archive are sufficient to reproduce all experiments reported in the manuscript.
-
-Dataset reconstruction is only necessary for researchers wishing to regenerate the DrugBank dataset from the original XML release.
-
-### Zenodo Archive
-
-The complete reproducibility package is available at:
-
-**DOI:** https://doi.org/10.5281/zenodo.21221081
-
-The Zenodo archive contains:
-
-- Pre-trained MoDAN model weights (`best_biomodal_model.pt`)
-- ChemBERTa embeddings
-- ESM-2 embeddings
-- BioBERT embeddings
-- DrugBank evaluation splits
-- BIOSNAP evaluation splits
-- ZhangDDI evaluation splits
-
-Due to DrugBank licensing restrictions, the original DrugBank XML database is **not redistributed**. Researchers must obtain an academic license directly from DrugBank before running the dataset reconstruction pipeline.
-
-The complete reproducibility package is distributed across two repositories:
-
-- **GitHub:** source code, documentation, and analysis scripts.
-- **Zenodo:** model checkpoints, embeddings, processed datasets, and benchmark splits.
-
-This separation follows common reproducible research practices for repositories containing large model artifacts.
-
----
-
-## Dataset Reconstruction
-
-After obtaining DrugBank:
-
+**Reproduce all results:**
 ```bash
-python src/preprocessing/build_canonical_dataset.py
+python src/evaluation/evaluate_zero_shot_transfer.py
+python src/analysis/analyze_model_interpretability.py
 ```
 
-This will generate:
-
-* Canonical DDI dataset
-* Cold Train partition
-* S1 partition
-* S2 partition
-
-Dataset statistics:
-
-* Unique drugs: 3,904
-* Positive interactions: 1,238,380
-* Negative interactions: 1,238,380
-* Total pairs: 2,476,760
-
----
-
-## Training MoDAN
-
-Train the production model:
-
+**Train from scratch:**
 ```bash
 python src/training/train_modan.py
 ```
 
-The best model checkpoint is selected according to S2 ROC-AUC.
-
----
-
-## Baseline Models
-
-Dual-modal baselines:
-
-```bash
-python src/training/train_logistic_regression.py
-python src/training/train_xgboost.py
-```
-
-Tri-modal baselines:
-
+**Run baselines & ablations:**
 ```bash
 python src/training/train_xgboost_multimodal.py
-```
-
-Fair deep-learning baseline:
-
-```bash
-python src/training/train_mlp_baseline.py
-```
-
----
-
-## Ablation Studies
-
-Modality ablation:
-
-```bash
 python src/training/run_ablation_study.py
 ```
 
-Architectural ablation:
+Full documentation in `docs/reproducibility.md`.
 
-```bash
-python src/analysis/analyze_gate_ablation.py
+---
+
+## 📁 Repository Structure
+
+```
+MoDAN/
+├── src/
+│   ├── model/              # MoDAN architecture
+│   ├── training/           # Train scripts
+│   ├── evaluation/         # Evaluation & metrics
+│   ├── analysis/           # Interpretability
+│   ├── preprocessing/      # Data pipeline
+│   ├── embeddings/         # ESM-2, ChemBERTa, BioBERT
+│   ├── utils/              # setup_data.py
+│   └── visualization/      # Plots & heatmaps
+├── data/
+│   ├── embeddings/         # Pre-computed embeddings
+│   ├── processed/          # Benchmark splits
+│   └── metadata/           # Drug annotations
+├── configs/                # Hyperparameters
+├── results/
+│   ├── figures/            # Publication figures
+│   ├── tables/             # Results tables
+│   └── logs/               # Training logs
+└── environment.yml / requirements.txt
 ```
 
 ---
 
-## External Benchmark Evaluation
+## 📊 Data & Model Availability
 
-Benchmark transfer experiments:
+**Complete reproducibility package** (model weights, embeddings, datasets):
 
-```bash
-python src/training/train_modan_bimodal.py
-```
+🔗 **Zenodo DOI:** https://doi.org/10.5281/zenodo.21221081
 
-Strict zero-shot evaluation:
+The Zenodo archive contains:
+- Pre-trained MoDAN checkpoint (`best_biomodal_model.pt`)
+- ChemBERTa, ESM-2, BioBERT embeddings
+- DrugBank, BIOSNAP, ZhangDDI evaluation splits
 
-```bash
-python src/evaluation/evaluate_zero_shot_transfer.py
-```
-
----
-
-## Statistical Analysis
-
-Bootstrap confidence intervals:
-
-```bash
-python src/evaluation/compute_evaluation_metrics.py
-```
-
-Permutation testing:
-
-```bash
-python src/evaluation/statistical_significance_tests.py
-```
-
-Calibration analysis:
-
-```bash
-python src/visualization/generate_calibration_plots.py
-```
+**Note:** Raw DrugBank XML is not redistributed. Researchers must obtain an academic license directly from DrugBank before running dataset reconstruction.
 
 ---
 
-## Reproducibility
+## 💬 Citation
 
-A complete reproduction guide is available in:
+If you use MoDAN, please cite:
 
-```text
-docs/reproducibility.md
+```bibtex
+@dataset{sharma2026modan,
+  author    = {Sharma, Dolly and Tiwari, Srajal and Singh, Juhi and Singh, Tanishq},
+  title     = {Dataset and Pre-Trained Weights for MoDAN},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21221081},
+  url       = {https://doi.org/10.5281/zenodo.21221081}
+}
 ```
 
-The repository includes:
-
-* Environment specification
-* Hyperparameters
-* Dataset statistics
-* Evaluation protocols
-* Statistical validation procedures
+And the accompanying manuscript (upon publication).
 
 ---
 
-## Citation
+## 📄 License
 
-If you use MoDAN in your research, please cite:
+MIT License. See `LICENSE` for details.
 
-1. The accompanying manuscript (upon publication).
-
-2. The reproducibility archive:
-
-> Sharma, D., Tiwari, S., Singh, J., & Singh, T. (2026). *Dataset and Pre-Trained Weights for MoDAN: An Interpretable Modality-Disentangled Attention Network for Zero-Shot Drug–Drug Interaction Prediction*. Zenodo. https://doi.org/10.5281/zenodo.21221081
-
----
-
-## License
-
-This repository is released for academic and research purposes.
-
-DrugBank-derived datasets are not redistributed and remain subject to the original DrugBank licensing terms.
+DrugBank-derived datasets remain subject to original DrugBank licensing terms.
