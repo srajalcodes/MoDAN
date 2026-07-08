@@ -45,27 +45,6 @@ MoDAN substantially outperforms classical machine learning baselines while maint
 ```text
 MoDAN/
 <<<<<<< Updated upstream
-│
-├── src/
-│   ├── preprocessing/
-│   ├── training/
-│   ├── evaluation/
-│   ├── analysis/
-│   ├── visualization/
-│   ├── embeddings/
-│   ├── model/
-│   └── utils/
-│
-├── configs/
-├── data/
-├── docs/
-├── metadata/
-├── results/
-│   ├── figures/
-│   ├── tables/
-│   └── logs/
-=======
-│
 ├── configs/
 │
 ├── data/
