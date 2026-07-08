@@ -69,9 +69,9 @@ def evaluate_models(xgb_model, lr_model, csv_path, chem, esm, bio, c_dim, e_dim,
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
+    parser.add_argument("--chemberta", default="data/embeddings/chemberta_embeddings.pkl")
+    parser.add_argument("--esm2", default="data/embeddings/esm2_embeddings.pkl")
+    parser.add_argument("--biobert", default="data/embeddings/biobert_drug_embeddings.pkl")
     args = parser.parse_args()
 
     print("Loading dictionaries...")

@@ -97,12 +97,13 @@ class OnTheFlyDDIDataset(Dataset):
         return drug_a, drug_b, torch.tensor(label, dtype=torch.float32)
 
 def main():
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    parser.add_argument("--test_csv", default=BENCHMARK_DIR / "BIOSNAP_test_cold_S2.csv")
-    parser.add_argument("--model_path", default=MODEL_DIR / "best_biomodal_model.pt")
+    parser.add_argument("--chemberta", default="data/embeddings/chemberta_embeddings.pkl")
+    parser.add_argument("--esm2", default="data/embeddings/esm2_embeddings.pkl")
+    parser.add_argument("--biobert", default="data/embeddings/biobert_drug_embeddings.pkl")
+    parser.add_argument("--model_path", default="models/modan_final_model.pt")
+    parser.add_argument("--test_csv", default="data/benchmark_splits/BIOSNAP_test_cold_S2.csv")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

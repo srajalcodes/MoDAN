@@ -62,13 +62,16 @@ class ModalAttnDDI(nn.Module):
 # 2. EVALUATION & EXTRACTION
 # =============================================================================
 def main():
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    parser.add_argument("--drug_meta", required=True)
-    parser.add_argument("--test_csv", required=True)
-    parser.add_argument("--model_path", required=True)
+
+    parser.add_argument("--chemberta", default="data/embeddings/chemberta_embeddings.pkl")
+    parser.add_argument("--esm2", default="data/embeddings/esm2_embeddings.pkl")
+    parser.add_argument("--biobert", default="data/embeddings/biobert_drug_embeddings.pkl")
+    parser.add_argument("--model_path", default="models/modan_final_model.pt")
+    
+    parser.add_argument("--test_csv", default="data/processed/test_cold_S2.csv")
+    parser.add_argument("--drug_meta", default="data/metadata/final_drug_nodes.csv")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

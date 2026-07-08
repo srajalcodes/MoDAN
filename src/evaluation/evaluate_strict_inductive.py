@@ -4,10 +4,14 @@ import pickle
 import torch
 from pathlib import Path
 import torch.nn as nn
-from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
+from sklearn.metrics import roc_auc_score, f1_score
 from torch.utils.data import DataLoader, Dataset
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-
+# ------------------------------------------------------------------
+# PATH CONFIGURATIONS (Professional pathlib structure)
+# ------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[2]
 
 DATA_DIR = ROOT / "data"
@@ -15,7 +19,14 @@ EMBEDDINGS_DIR = DATA_DIR / "embeddings"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 BENCHMARK_DIR = DATA_DIR / "benchmark_splits"
 MODEL_DIR = ROOT / "models"
+RESULTS_TABLES_DIR = ROOT / "results" / "tables" / "supplementary"
 
+# Create results folder if it doesn't exist
+RESULTS_TABLES_DIR.mkdir(parents=True, exist_ok=True)
+
+# =============================================================================
+# 1. ARCHITECTURE 
+# =============================================================================
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -75,6 +86,9 @@ class StrictZeroShotDataset(Dataset):
         c2, e2, b2 = self.chem.get(d2, np.zeros(self.c_dim, dtype=np.float32)), self.esm.get(d2, np.zeros(self.e_dim, dtype=np.float32)), self.bio.get(d2, np.zeros(self.b_dim, dtype=np.float32))
         return torch.tensor(np.concatenate([c1, e1, b1]), dtype=torch.float32), torch.tensor(np.concatenate([c2, e2, b2]), dtype=torch.float32), torch.tensor(label, dtype=torch.float32)
 
+# =============================================================================
+# 2. EVALUATION FUNCTION
+# =============================================================================
 def evaluate_strict(name, benchmark_csv, massive_train_csv, model, chem, esm, bio, c_dim, e_dim, b_dim, device):
     # 1. Get seen drugs
     massive_train = pd.read_csv(massive_train_csv)
@@ -82,15 +96,27 @@ def evaluate_strict(name, benchmark_csv, massive_train_csv, model, chem, esm, bi
     
     # 2. Filter benchmark for TRUE Zero-Shot
     df = pd.read_csv(benchmark_csv)
+    total_drugs_in_s2 = set(df['drug_A']).union(set(df['drug_B']))
+    leaked_drugs = total_drugs_in_s2.intersection(seen_drugs)
+    
     strict_mask = (~df['drug_A'].isin(seen_drugs)) & (~df['drug_B'].isin(seen_drugs))
     strict_df = df[strict_mask].reset_index(drop=True)
     
     print(f"\n--- {name} Strict Zero-Shot ---")
     print(f"Isolated {len(strict_df)} edges where BOTH drugs were never seen during pre-training.")
     
+    # Generate stats for Table S02
+    overlap_stats = {
+        "Dataset": name,
+        "Total S2 Drugs": len(total_drugs_in_s2),
+        "Overlapping Drugs (Leaked)": len(leaked_drugs),
+        "Original S2 Edges": len(df),
+        "Strict Zero-Shot Edges (100% Blind)": len(strict_df)
+    }
+
     if len(np.unique(strict_df['label'])) < 2:
         print(f"Skipping {name}: Not enough mixed labels to calculate ROC-AUC.")
-        return
+        return overlap_stats
 
     loader = DataLoader(StrictZeroShotDataset(strict_df, chem, esm, bio, c_dim, e_dim, b_dim), batch_size=512, shuffle=False)
     
@@ -104,9 +130,22 @@ def evaluate_strict(name, benchmark_csv, massive_train_csv, model, chem, esm, bi
     all_probs, all_labels = np.array(all_probs), np.array(all_labels)
     all_preds = (all_probs >= 0.5).astype(int)
     
-    print(f"ROC-AUC:   {roc_auc_score(all_labels, all_probs):.4f}")
-    print(f"F1 Score:  {f1_score(all_labels, all_preds, zero_division=0):.4f}")
+    roc = roc_auc_score(all_labels, all_probs)
+    f1 = f1_score(all_labels, all_preds, zero_division=0)
+    
+    print(f"ROC-AUC:   {roc:.4f}")
+    print(f"F1 Score:  {f1:.4f}")
 
+    # Save Metrics CSVs (Table S09 / S10)
+    metric_stats = [{"Metric": "ROC-AUC", "Score": round(roc, 4)}, {"Metric": "F1-Score", "Score": round(f1, 4)}]
+    table_num = "s09_biosnap" if name == "BIOSNAP" else "s10_zhangddi"
+    pd.DataFrame(metric_stats).to_csv(RESULTS_TABLES_DIR / f"table_{table_num}_strict_zero_shot.csv", index=False)
+
+    return overlap_stats
+
+# =============================================================================
+# 3. MAIN RUNNER
+# =============================================================================
 if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -118,10 +157,10 @@ if __name__ == "__main__":
     esm2_path = EMBEDDINGS_DIR / "esm2_embeddings.pkl"
     biobert_path = EMBEDDINGS_DIR / "biobert_drug_embeddings.pkl"
 
-    model_path = MODEL_DIR / "best_biomodal_model.pt"
+    # NOTE: Updated to the new, non-confusing model name
+    model_path = MODEL_DIR / "modan_final_model.pt"
 
     train_dataset = PROCESSED_DATA_DIR / "train_cold.csv"
-
     biosnap_dataset = BENCHMARK_DIR / "BIOSNAP_test_cold_S2.csv"
     zhangddi_dataset = BENCHMARK_DIR / "ZhangDDI_test_cold_S2.csv"
 
@@ -129,13 +168,8 @@ if __name__ == "__main__":
     # Verify Required Files
     # ------------------------------------------------------------------
     required_files = [
-        chemberta_path,
-        esm2_path,
-        biobert_path,
-        model_path,
-        train_dataset,
-        biosnap_dataset,
-        zhangddi_dataset,
+        chemberta_path, esm2_path, biobert_path, model_path,
+        train_dataset, biosnap_dataset, zhangddi_dataset,
     ]
 
     for file in required_files:
@@ -146,70 +180,32 @@ if __name__ == "__main__":
     # Load Embeddings
     # ------------------------------------------------------------------
     print("Loading ChemBERTa embeddings...")
-    with open(chemberta_path, "rb") as f:
-        chem = pickle.load(f)
+    with open(chemberta_path, "rb") as f: chem = pickle.load(f)
 
     print("Loading ESM-2 embeddings...")
-    with open(esm2_path, "rb") as f:
-        esm = pickle.load(f)
+    with open(esm2_path, "rb") as f: esm = pickle.load(f)
 
     print("Loading BioBERT embeddings...")
-    with open(biobert_path, "rb") as f:
-        bio = pickle.load(f)
+    with open(biobert_path, "rb") as f: bio = pickle.load(f)
 
-    c_dim = len(next(iter(chem.values())))
-    e_dim = len(next(iter(esm.values())))
-    b_dim = len(next(iter(bio.values())))
+    c_dim, e_dim, b_dim = len(next(iter(chem.values()))), len(next(iter(esm.values()))), len(next(iter(bio.values())))
 
     # ------------------------------------------------------------------
     # Load Model
     # ------------------------------------------------------------------
-    print("Loading pretrained MoDAN model...")
-
-    model = ModalAttnDDI(
-        chem_dim=c_dim,
-        esm_dim=e_dim,
-        bio_dim=b_dim
-    ).to(device)
-
-    model.load_state_dict(
-        torch.load(model_path, map_location=device)
-    )
-
+    print(f"Loading pretrained MoDAN model from {model_path.name}...")
+    model = ModalAttnDDI(chem_dim=c_dim, esm_dim=e_dim, bio_dim=b_dim).to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
 
     # ------------------------------------------------------------------
-    # Evaluate BIOSNAP
+    # Evaluate & Save Tables
     # ------------------------------------------------------------------
-    evaluate_strict(
-        "BIOSNAP",
-        biosnap_dataset,
-        train_dataset,
-        model,
-        chem,
-        esm,
-        bio,
-        c_dim,
-        e_dim,
-        b_dim,
-        device,
-    )
+    stat1 = evaluate_strict("BIOSNAP", biosnap_dataset, train_dataset, model, chem, esm, bio, c_dim, e_dim, b_dim, device)
+    stat2 = evaluate_strict("ZhangDDI", zhangddi_dataset, train_dataset, model, chem, esm, bio, c_dim, e_dim, b_dim, device)
 
-    # ------------------------------------------------------------------
-    # Evaluate ZhangDDI
-    # ------------------------------------------------------------------
-    evaluate_strict(
-        "ZhangDDI",
-        zhangddi_dataset,
-        train_dataset,
-        model,
-        chem,
-        esm,
-        bio,
-        c_dim,
-        e_dim,
-        b_dim,
-        device,
-    )
+    # Save the consolidated overlap table (Table S02)
+    pd.DataFrame([stat1, stat2]).to_csv(RESULTS_TABLES_DIR / "table_s02_benchmark_overlap_analysis.csv", index=False)
 
-    print("\nEvaluation completed successfully.")
+    print("\n✅ Evaluation completed successfully.")
+    print(f"✅ Saved Tables S02, S09, and S10 to: {RESULTS_TABLES_DIR}")

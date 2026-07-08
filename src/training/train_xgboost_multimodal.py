@@ -9,13 +9,13 @@ from tqdm import tqdm
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    parser.add_argument("--train_csv", default="train_cold.csv")
-    parser.add_argument("--s1_csv", default="test_cold_S1.csv")
-    parser.add_argument("--s2_csv", default="test_cold_S2.csv")
-    parser.add_argument("--output", default="multimodal_xgboost_results.csv")
+    parser.add_argument("--chemberta", default="data/embeddings/chemberta_embeddings.pkl")
+    parser.add_argument("--esm2", default="data/embeddings/esm2_embeddings.pkl")
+    parser.add_argument("--biobert", default="data/embeddings/biobert_drug_embeddings.pkl")
+    parser.add_argument("--train_csv", default="data/processed/train_cold.csv")
+    parser.add_argument("--s1_csv", default="data/processed/test_cold_S1.csv")
+    parser.add_argument("--s2_csv", default="data/processed/test_cold_S2.csv")
+    parser.add_argument("--output", default="data/processed/multimodal_xgboost_results.csv")
     return parser.parse_args()
 
 def get_features_for_batch(df_chunk, chem, esm, bio, chem_dim, esm_dim, bio_dim):
