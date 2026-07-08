@@ -5,7 +5,7 @@
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
 
 <p align="center">
-  <img src="results/figures/main/figure_01_modan_architecture.png" alt="MoDAN Architecture" width="800"/>
+  <img src="results/figures/main/figure_01_modan_architecture.pdf" alt="MoDAN Architecture" width="800"/>
 </p>
 
 ## Overview
