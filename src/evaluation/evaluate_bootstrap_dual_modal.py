@@ -8,6 +8,11 @@ from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_sco
 from tqdm import tqdm
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 def get_features_for_batch(df_chunk, chem, esm, c_dim, e_dim):
     X, y = [], []

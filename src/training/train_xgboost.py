@@ -6,14 +6,19 @@ import argparse
 import os
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
 from tqdm import tqdm
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--train_csv", default="train_cold.csv")
-    parser.add_argument("--s1_csv", default="test_cold_S1.csv")
-    parser.add_argument("--s2_csv", default="test_cold_S2.csv")
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--train_csv", default=str(ROOT / "data" / "processed" / "train_cold.csv"))
+    parser.add_argument("--s1_csv", default=str(ROOT / "data" / "processed" / "test_cold_S1.csv"))
+    parser.add_argument("--s2_csv", default=str(ROOT / "data" / "processed" / "test_cold_S2.csv"))
     return parser.parse_args()
 
 def get_features_for_batch(df_chunk, chem, esm, chem_dim, esm_dim):

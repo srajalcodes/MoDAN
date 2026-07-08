@@ -69,9 +69,9 @@ def evaluate(model, loader, device):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -82,8 +82,8 @@ def main():
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     criterion = nn.BCEWithLogitsLoss()
 
-    train_loader = DataLoader(OnTheFlyDDIDataset(PROCESSED_DATA_DIR / "train_cold.csv", chem, esm, bio, c, e, b), batch_size=512, shuffle=True)
-    s2_loader = DataLoader(OnTheFlyDDIDataset(PROCESSED_DATA_DIR / "test_cold_S2.csv", chem, esm, bio, c, e, b), batch_size=512)
+    train_loader = DataLoader(OnTheFlyDDIDataset(str(ROOT / "dataset" / "train_cold.csv"), chem, esm, bio, c, e, b), batch_size=512, shuffle=True)
+    s2_loader = DataLoader(OnTheFlyDDIDataset(str(ROOT / "dataset" / "test_cold_S2.csv"), chem, esm, bio, c, e, b), batch_size=512)
 
     print("Training UNGATED MoDAN Ablation...")
     best_s2 = 0.0

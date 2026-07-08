@@ -4,12 +4,17 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import os
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--output_dir", required=True)
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--output_dir", default=str(ROOT / "data" / "canonical"))
     return parser.parse_args()
 
 def process_file(csv_path, out_prefix, chem, esm, chem_dim, esm_dim):

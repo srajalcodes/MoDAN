@@ -6,6 +6,11 @@ import pickle
 import argparse
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
 from tqdm import tqdm
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 def parse_args():
     parser = argparse.ArgumentParser()

@@ -81,10 +81,10 @@ class OnTheFlyDDIDataset(Dataset):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    parser.add_argument("--model_path", default= MODEL_DIR / "best_biomodal_model.pt")
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
+    parser.add_argument("--model_path", default=str(ROOT / "models" / "best_biomodal_model.pt"))
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -101,7 +101,7 @@ def main():
     model.eval()
 
     print("\nScanning S2 Unseen dataset for Global Gate Statistics...")
-    dataset = OnTheFlyDDIDataset(PROCESSED_DATA_DIR / "test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim)
+    dataset = OnTheFlyDDIDataset(str(ROOT / "dataset" / "test_cold_S2.csv"), chem, esm, bio, c_dim, e_dim, b_dim)
     loader = DataLoader(dataset, batch_size=512, shuffle=False)
     
     chem_gates, esm_gates, bio_gates = [], [], []

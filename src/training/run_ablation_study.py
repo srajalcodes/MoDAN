@@ -7,7 +7,19 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
+import os
+import sys
+from pathlib import Path
 
+# --- Fix for VS Code OpenMP crash ---
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+# --- Dynamic Relative Paths ---
+ROOT = Path(__file__).resolve().parents[2]
+
+# =============================================================================
+# 1. ARCHITECTURE
+# =============================================================================
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
         super().__init__()
@@ -52,12 +64,15 @@ class ModalAttnDDI(nn.Module):
         D_chem, D_esm, D_bio = chem_a - chem_b, esm_a - esm_b, bio_a - bio_b
         return self.classifier(torch.cat([I_chem, I_esm, I_bio, D_chem, D_esm, D_bio], dim=-1)).squeeze(-1)
 
+# =============================================================================
+# 2. ABLATION DATASET (Automatically masks features with zeros)
+# =============================================================================
 class AblationDataset(Dataset):
     def __init__(self, csv_path, chem_dict, esm_dict, bio_dict, c_dim, e_dim, b_dim, mode):
         self.df = pd.read_csv(csv_path)
         self.chem, self.esm, self.bio = chem_dict, esm_dict, bio_dict
         self.c_dim, self.e_dim, self.b_dim = c_dim, e_dim, b_dim
-        self.mode = mode # 'chem_only', 'esm_only', 'no_bio'
+        self.mode = mode 
 
     def __len__(self): return len(self.df)
 
@@ -70,7 +85,7 @@ class AblationDataset(Dataset):
         e1, e2 = np.zeros(self.e_dim, dtype=np.float32), np.zeros(self.e_dim, dtype=np.float32)
         b1, b2 = np.zeros(self.b_dim, dtype=np.float32), np.zeros(self.b_dim, dtype=np.float32)
 
-        # Apply logic
+        # Apply logic based on mode
         if self.mode in ['chem_only', 'no_bio']:
             c1, c2 = self.chem.get(d1, c1), self.chem.get(d2, c2)
         if self.mode in ['esm_only', 'no_bio']:
@@ -90,27 +105,20 @@ def evaluate(model, loader, device):
             all_labels.extend(label.numpy())
     return roc_auc_score(all_labels, all_probs)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", required=True, choices=['chem_only', 'esm_only', 'no_bio'])
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    args = parser.parse_args()
+def run_single_ablation(mode, chem, esm, bio, c_dim, e_dim, b_dim, device):
+    print(f"\n" + "="*50)
+    print(f"🚀 Running Ablation: {mode.upper()}")
+    print("="*50)
+    
+    train_loader = DataLoader(AblationDataset(str(ROOT / "data" / "processed" / "train_cold.csv"), chem, esm, bio, c_dim, e_dim, b_dim, mode), batch_size=512, shuffle=True)
+    s2_loader = DataLoader(AblationDataset(str(ROOT / "data" / "processed" / "test_cold_S2.csv"), chem, esm, bio, c_dim, e_dim, b_dim, mode), batch_size=512)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    chem, esm, bio = pickle.load(open(args.chemberta, "rb")), pickle.load(open(args.esm2, "rb")), pickle.load(open(args.biobert, "rb"))
-    c_dim, e_dim, b_dim = len(next(iter(chem.values()))), len(next(iter(esm.values()))), len(next(iter(bio.values())))
-
-    print(f"\n--- Running Ablation: {args.mode.upper()} ---")
-    train_loader = DataLoader(AblationDataset(r"..\dataset\train_cold.csv", chem, esm, bio, c_dim, e_dim, b_dim, args.mode), batch_size=512, shuffle=True)
-    s2_loader = DataLoader(AblationDataset(r"..\dataset\test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim, args.mode), batch_size=512)
     model = ModalAttnDDI(chem_dim=c_dim, esm_dim=e_dim, bio_dim=b_dim).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     criterion = nn.BCEWithLogitsLoss()
 
     best_roc = 0.0
-    for epoch in range(1, 6): # 5 epochs is enough for ablation
+    for epoch in range(1, 4): # 3 Epochs is sufficient to hit the ceiling for ablation tests
         model.train()
         for drug_a, drug_b, label in tqdm(train_loader, desc=f"Epoch {epoch}"):
             optimizer.zero_grad()
@@ -122,7 +130,37 @@ def main():
         if roc > best_roc: best_roc = roc
         print(f"Epoch {epoch} S2 ROC-AUC: {roc:.4f}")
 
-    print(f"\n✅ {args.mode.upper()} Final S2 Score: {best_roc:.4f}")
+    print(f"✅ {mode.upper()} Final S2 Score: {best_roc:.4f}")
+    return best_roc
+
+def main():
+    parser = argparse.ArgumentParser()
+    # No more required=True! We use the ROOT pathlib defaults.
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
+    args = parser.parse_args()
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Loading dictionaries...")
+    chem = pickle.load(open(args.chemberta, "rb"))
+    esm = pickle.load(open(args.esm2, "rb"))
+    bio = pickle.load(open(args.biobert, "rb"))
+    c_dim, e_dim, b_dim = len(next(iter(chem.values()))), len(next(iter(esm.values()))), len(next(iter(bio.values())))
+
+    # Automatically run all 3 ablations
+    modes = ['esm_only', 'chem_only', 'no_bio']
+    results = {}
+    
+    for mode in modes:
+        results[mode] = run_single_ablation(mode, chem, esm, bio, c_dim, e_dim, b_dim, device)
+        
+    print("\n" + "="*50)
+    print("🏆 FINAL ABLATION RESULTS (S2 SPLIT) 🏆")
+    print("="*50)
+    for mode, score in results.items():
+        print(f"{mode.upper()}: {score:.4f}")
+    print("="*50)
 
 if __name__ == "__main__":
     main()

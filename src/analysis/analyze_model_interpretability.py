@@ -4,6 +4,11 @@ import pandas as pd
 import pickle
 import torch
 import torch.nn as nn
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):

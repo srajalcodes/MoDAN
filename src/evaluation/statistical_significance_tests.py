@@ -11,6 +11,12 @@ from tqdm import tqdm
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
+
 class FairVanillaMLP(nn.Module):
     def __init__(self, c, e, b):
         super().__init__()
@@ -98,9 +104,9 @@ def paired_permutation_test(y_true, prob_A, prob_B, n_permutations=1000):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -110,10 +116,10 @@ def main():
     print("Loading Models...")
     # Load MoDAN
     modan = ModalAttnDDI(c, e, b).to(device)
-    modan.load_state_dict(torch.load(r"FInal_model\best_biomodal_model.pt", map_location=device))
+    modan.load_state_dict(torch.load(str(ROOT / "models" / "best_biomodal_model.pt"), map_location=device))
     modan.eval()
     
-    loader = DataLoader(OnTheFlyDataset(r"dataset\test_cold_S2.csv", chem, esm, bio, c, e, b), batch_size=512)
+    loader = DataLoader(OnTheFlyDataset(str(ROOT / "dataset" / "test_cold_S2.csv"), chem, esm, bio, c, e, b), batch_size=512)
     
     y_true, modan_probs = [], []
     print("Getting MoDAN Predictions...")

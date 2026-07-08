@@ -9,6 +9,11 @@ from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_sco
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
@@ -128,13 +133,13 @@ def evaluate(model, loader, device, name):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    parser.add_argument("--train_csv", default= PROCESSED_DATA_DIR / "train_cold.csv")
-    parser.add_argument("--s1_csv", default= PROCESSED_DATA_DIR / "test_cold_S1.csv")
-    parser.add_argument("--s2_csv", default= PROCESSED_DATA_DIR / "test_cold_S2.csv")
-    parser.add_argument("--output", default= RESULTS_DIR / "final_biomodal_results.csv")
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
+    parser.add_argument("--train_csv", default=str(ROOT / "data" / "processed" / "train_cold.csv"))
+    parser.add_argument("--s1_csv", default=str(ROOT / "data" / "processed" / "test_cold_S1.csv"))
+    parser.add_argument("--s2_csv", default=str(ROOT / "data" / "processed" / "test_cold_S2.csv"))
+    parser.add_argument("--output", default=str(RESULTS_DIR / "final_biomodal_results.csv"))
     parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--epochs", type=int, default=10) # Increased to 10
     args = parser.parse_args()

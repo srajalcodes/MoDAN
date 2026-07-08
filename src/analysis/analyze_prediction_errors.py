@@ -7,6 +7,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 class GatedCrossAttn(nn.Module):
     def __init__(self, dim=256, num_heads=4):
@@ -67,12 +72,12 @@ class OnTheFlyDDIDataset(Dataset):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
-    parser.add_argument("--drug_meta", default=r"C:\Users\st735\OneDrive - Shiv Nadar Institution of Eminence\Documents\CODE\DDI\dataset\final_drug_nodes.csv")
-    parser.add_argument("--test_csv", default=r"dataset\test_cold_S2.csv")
-    parser.add_argument("--model_path", default=r"FInal_model\best_biomodal_model.pt")
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
+    parser.add_argument("--drug_meta", default=str(ROOT / "dataset" / "final_drug_nodes.csv"))
+    parser.add_argument("--test_csv", default=str(ROOT / "dataset" / "test_cold_S2.csv"))
+    parser.add_argument("--model_path", default=str(ROOT / "models" / "best_biomodal_model.pt"))
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

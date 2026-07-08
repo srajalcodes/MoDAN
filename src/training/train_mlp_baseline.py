@@ -7,6 +7,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from sklearn.metrics import roc_auc_score, f1_score, precision_score, recall_score
 from tqdm import tqdm
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
 
 class FairVanillaMLP(nn.Module):
     def __init__(self, chem_dim=384, esm_dim=1280, bio_dim=768):
@@ -68,17 +73,21 @@ def evaluate(model, loader, device, name):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chemberta", required=True)
-    parser.add_argument("--esm2", required=True)
-    parser.add_argument("--biobert", required=True)
+    parser.add_argument("--chemberta", default=str(ROOT / "data" / "embeddings" / "chemberta_embeddings.pkl"))
+    parser.add_argument("--esm2", default=str(ROOT / "data" / "embeddings" / "esm2_embeddings.pkl"))
+    parser.add_argument("--biobert", default=str(ROOT / "data" / "embeddings" / "biobert_drug_embeddings.pkl"))
+    parser.add_argument("--train_csv", default=str(ROOT / "data" / "processed" / "train_cold.csv"))
+    parser.add_argument("--s1_csv", default=str(ROOT / "data" / "processed" / "test_cold_S1.csv"))
+    parser.add_argument("--s2_csv", default=str(ROOT / "data" / "processed" / "test_cold_S2.csv"))
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     chem, esm, bio = pickle.load(open(args.chemberta, "rb")), pickle.load(open(args.esm2, "rb")), pickle.load(open(args.biobert, "rb"))
     c_dim, e_dim, b_dim = len(next(iter(chem.values()))), len(next(iter(esm.values()))), len(next(iter(bio.values())))
 
-    train_loader = DataLoader(OnTheFlyDDIDataset(r"..\dataset\train_cold.csv", chem, esm, bio, c_dim, e_dim, b_dim), batch_size=512, shuffle=True)
-    s2_loader = DataLoader(OnTheFlyDDIDataset(r"..\dataset\test_cold_S2.csv", chem, esm, bio, c_dim, e_dim, b_dim), batch_size=512)
+    train_loader = DataLoader(OnTheFlyDDIDataset(args.train_csv, chem, esm, bio, c_dim, e_dim, b_dim), batch_size=512, shuffle=True)
+    s1_loader = DataLoader(OnTheFlyDDIDataset(args.s1_csv, chem, esm, bio, c_dim, e_dim, b_dim), batch_size=512)
+    s2_loader = DataLoader(OnTheFlyDDIDataset(args.s2_csv, chem, esm, bio, c_dim, e_dim, b_dim), batch_size=512)
 
     model = FairVanillaMLP(chem_dim=c_dim, esm_dim=e_dim, bio_dim=b_dim).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)

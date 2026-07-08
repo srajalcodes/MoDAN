@@ -11,6 +11,12 @@ import os
 # Fix for VS Code OpenMP crash
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+import argparse
+from pathlib import Path
+
+# --- Add this right below your imports if it isn't there already! ---
+ROOT = Path(__file__).resolve().parents[2]
+
 def get_features_for_batch(df_chunk, chem, esm, bio, c_dim, e_dim, b_dim):
     X, y = [], []
     for _, row in df_chunk.iterrows():
