@@ -101,7 +101,7 @@ MoDAN/
 🔗 **Zenodo DOI:** https://doi.org/10.5281/zenodo.21221081
 
 The Zenodo archive contains:
-- Pre-trained MoDAN checkpoint (`best_biomodal_model.pt`)
+- Pre-trained MoDAN checkpoint (modan_final_model.pt)
 - ChemBERTa, ESM-2, BioBERT embeddings
 - DrugBank, BIOSNAP, ZhangDDI evaluation splits
 
