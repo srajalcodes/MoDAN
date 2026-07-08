@@ -31,7 +31,8 @@ Strictly inductive evaluation on completely held-out compounds.
 git clone https://github.com/srajalcodes/MoDAN.git
 cd MoDAN
 conda env create -f environment.yml
-conda activate ddi_final
+conda activate modan
+pip install -r requirements.txt
 
 # 2. Download weights & data
 python src/utils/setup_data.py
